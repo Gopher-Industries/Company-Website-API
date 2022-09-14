@@ -53,7 +53,7 @@ namespace ProjectX.WebAPI.Services
             // Retrieve the credentials from the secrets
             var FirestoreBuilder = new FirestoreClientBuilder
             {
-                JsonCredentials = Config.GetJson("Credentials:FirestoreAccess")
+                JsonCredentials = Config.GetJson("ApiKeys:FirestoreAccess")
             };
 
             // Connect to the firestore database

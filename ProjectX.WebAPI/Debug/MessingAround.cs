@@ -1,5 +1,6 @@
 ﻿using ImageMagick;
 using Newtonsoft.Json.Schema;
+using ProjectX.WebAPI.Models;
 using System.Diagnostics;
 
 namespace ProjectX.WebAPI.Debug
@@ -29,6 +30,7 @@ namespace ProjectX.WebAPI.Debug
                 var compressStringBase64 = image.ToBase64(MagickFormat.Jpg);
                 image.Write(@"C:\Users\Nathan\Downloads\Compressed.jpg");
 
+                var compressCompressed = MemoryCompression.Compress(compress);
 
                 var st = image.ToString();
 

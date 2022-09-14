@@ -18,6 +18,21 @@ namespace ProjectX.WebAPI.Models
             }
         }
 
+        public static byte[] Compress(byte[] bytes)
+        {
+            using (var msi = new MemoryStream(bytes))
+            using (var mso = new MemoryStream())
+            {
+                using (var gs = new GZipStream(mso, CompressionLevel.SmallestSize))
+                {
+                    //msi.CopyTo(gs);
+                    CopyTo(msi, gs);
+                }
+
+                return mso.ToArray();
+            }
+        }
+
         public static byte[] Compress(string str)
         {
             var bytes = Encoding.UTF8.GetBytes(str);
@@ -25,7 +40,7 @@ namespace ProjectX.WebAPI.Models
             using (var msi = new MemoryStream(bytes))
             using (var mso = new MemoryStream())
             {
-                using (var gs = new GZipStream(mso, CompressionMode.Compress))
+                using (var gs = new GZipStream(mso, CompressionLevel.SmallestSize))
                 {
                     //msi.CopyTo(gs);
                     CopyTo(msi, gs);

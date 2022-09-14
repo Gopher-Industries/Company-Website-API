@@ -11,17 +11,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Credentials\**" />
+    <Content Remove="Credentials\**" />
+    <EmbeddedResource Remove="Credentials\**" />
+    <None Remove="Credentials\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="appsettings.Development.json" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="api_gopherindustries_net.pfx" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="api_gopherindustries_net.pfx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>

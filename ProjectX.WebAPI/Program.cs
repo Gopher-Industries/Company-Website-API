@@ -1,21 +1,14 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using ProjectX.WebAPI.Debug;
 using ProjectX.WebAPI.Models;
 using ProjectX.WebAPI.Services;
 using Swashbuckle.AspNetCore.Filters;
+using System.Collections;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
-
-var s = new ConfigurationBuilder().AddEnvironmentVariables().Build();
-var bn = s["SuperSecret:Variable"];
-
-var n = Environment.GetEnvironmentVariable("SuperSecret:Variable");
-
-Console.WriteLine(n);
-
-return;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,7 +19,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Configuration.AddEnvironmentVariables();
-builder.Configuration.AddUserSecrets<Program>(true, false);
+
+if (builder.Environment.IsDevelopment() is true)
+    builder.Configuration.AddUserSecrets<Program>(true, true);
+else
+    builder.Configuration.AddJsonStream(new MemoryStream(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("ProjectXAPIConfiguration"))));
 builder.Configuration.AddJsonFile("appsettings.json");
 builder.Services.Configure<ApplicationHostSettings>(builder.Configuration.GetSection("ApplicationHosting"));
 builder.Services.Configure<ApplicationIdentitySettings>(builder.Configuration.GetSection("ApplicationIdentity"));
@@ -105,26 +102,29 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 
-var Cert = new X509Certificate2(builder.Configuration.GetValue<byte[]>("WebsiteApiSSL"), builder.Configuration["ProjectXAPIConfiguration:SSL:CertificatePassword"], X509KeyStorageFlags.MachineKeySet);
+//var Cert = new X509Certificate2(builder.Configuration["SSL:CertificatePath"], builder.Configuration["SSL:CertificatePassword"], X509KeyStorageFlags.MachineKeySet);
+
+//var pub = Cert.GetPublicKeyString();
+//var priv = Cert.PrivateKey.ToXmlString(false);
 
 // If we're not in development mode, startup the kesteral server and use our certificates!
 if (builder.Environment.IsDevelopment() is false)
 {
 
     // Remove default URL's
-    builder.WebHost.UseUrls();
+    builder.WebHost.UseUrls("http://0.0.0.0:80");
 
-    builder.WebHost.UseKestrel(serverOptions =>
-    {
-        serverOptions.Listen(System.Net.IPAddress.Parse("0.0.0.0"), 443, listenOptions =>
-        {
-            listenOptions.UseHttps();
-            //listenOptions.UseHttps(
-            //    builder.Configuration["SSL:CertificatePath"],
-            //    builder.Configuration["SSL:CertificatePassword"]
-            //);
-        });
-    });
+    //builder.WebHost.UseKestrel(serverOptions =>
+    //{
+    //    serverOptions.Listen(System.Net.IPAddress.Parse("0.0.0.0"), 443, listenOptions =>
+    //    {
+
+    //        listenOptions.UseHttps(
+    //            builder.Configuration["SSL:CertificatePath"],
+    //            builder.Configuration["SSL:CertificatePassword"]
+    //        );
+    //    });
+    //});
 }
 
 var app = builder.Build();

@@ -62,9 +62,9 @@ namespace ProjectX.WebAPI.Services
 
             this.Cache = Cache;
 
-            var config = Config.GetJson("Credentials:DialogflowAccess");
+            var config = Config.GetJson("ApiKeys:DialogflowAccess");
 
-            this.ProjectId = Config["Credentials:DialogflowAccess:project_id"];
+            this.ProjectId = Config["ApiKeys:DialogflowAccess:project_id"];
 
             (this.ConversationAgent, this.SessionAgent, this.ContextAgent) = this.InitializeDialogflowConnection(config).ConfigureAwait(false).GetAwaiter().GetResult();
             

@@ -15,15 +15,5 @@ namespace ProjectX.WebAPI.Models.Config
             return JsonObject.ToString();
         }
 
-        //public static IConfigurationBuilder AddGoogleCloudSecrets(this IConfigurationBuilder Configuration, string GoogleCloudProject)
-        //{
-        //    var client = SecretManagerServiceClient.Create();
-        //    var Config = client.GetSecretVersion(new GetSecretVersionRequest
-        //    {
-        //        SecretVersionName = SecretVersionName.FromProjectSecretSecretVersion(GoogleCloudProject, "ProjectXAPIConfiguration", "1")
-        //    });
-        //    var Certificate = 
-        //}
-
     }
 }
