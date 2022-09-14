@@ -1,0 +1,6 @@
+.vs
+obj
+bin
+ProjectX.WebAPI/Credentials
+*.pfx
+*.tar
