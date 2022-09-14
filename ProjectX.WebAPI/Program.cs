@@ -117,9 +117,9 @@ if (builder.Environment.IsDevelopment() is false)
 var app = builder.Build();
 
 //
-// Hotload api connections
-app.Services.GetRequiredService<IDatabaseService>();
-app.Services.GetRequiredService<IDialogFlowService>();
+// Hotload api connections'
+Task.Run(() => app.Services.GetRequiredService<IDatabaseService>().Initialize());
+//app.Services.GetRequiredService<IDialogFlowService>();
 
 app.MapSwagger();
 app.UseSwagger();

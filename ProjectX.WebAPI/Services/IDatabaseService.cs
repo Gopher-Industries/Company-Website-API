@@ -9,6 +9,8 @@ namespace ProjectX.WebAPI.Services
     public interface IDatabaseService
     {
 
+        public Task<bool> Initialize();
+
         public IDatabaseCollectionReference Collection(string CollectionPath);
 
         public Task<T> GetDocument<T>(string CollectionPath, string DocumentId) where T : class;
@@ -31,19 +33,15 @@ namespace ProjectX.WebAPI.Services
     public class FirestoreDatabase : IDatabaseService
     {
 
-        private readonly FirestoreDb Database;
+        private FirestoreDb Database;
+        private readonly IConfiguration Config;
         private readonly ILogger<FirestoreDatabase> Logger;
 
         public FirestoreDatabase(IConfiguration Config, ILogger<FirestoreDatabase> Logger)
         {
             
             this.Logger = Logger;
-
-            
-
-            Database = InitializeDatabaseConnection(Config);
-
-            
+            this.Config = Config;
 
         }
 
@@ -51,7 +49,7 @@ namespace ProjectX.WebAPI.Services
         /// Create the initial connection to the database.
         /// </summary>
         /// <returns>A constructed <see cref="FirestoreDb"/> class to access firestore through</returns>
-        private FirestoreDb InitializeDatabaseConnection(IConfiguration Config)
+        public async Task<bool> Initialize()
         {
 
             //
@@ -63,19 +61,24 @@ namespace ProjectX.WebAPI.Services
             var ConnectionTimer = Stopwatch.StartNew();
 
             // Retrieve the credentials from the secrets
-            //var FirestoreBuilder = new FirestoreClientBuilder
-            //{
-            //    JsonCredentials = Config.GetJson("ApiKeys:FirestoreAccess")
-            //};
 
-            //this.Logger.LogInformation($"Taken {ConnectionTimer.ElapsedMilliseconds}ms to connect to read firestore settings");
+            var FirestoreAccess = Config.GetJson("ApiKeys:FirestoreAccess");
+
+            this.Logger.LogInformation($"Taken {ConnectionTimer.ElapsedMilliseconds}ms to connect to read firestore settings");
+
+            ConnectionTimer.Restart();
+
+            var FirestoreClient = await new FirestoreClientBuilder
+            {
+                JsonCredentials = FirestoreAccess,
+            }.BuildAsync().ConfigureAwait(false);
 
             // Connect to the firestore database
-            var fb = FirestoreDb.Create(projectId: "prototypeprojectx", client: null);
+            this.Database = FirestoreDb.Create(projectId: "prototypeprojectx", client: FirestoreClient);
 
             this.Logger.LogInformation($"Taken {ConnectionTimer.ElapsedMilliseconds}ms to connect to firestore database");
 
-            return fb;
+            return true;
 
         }
 
