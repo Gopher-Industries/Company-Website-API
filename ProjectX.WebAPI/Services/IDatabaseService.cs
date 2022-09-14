@@ -39,11 +39,11 @@ namespace ProjectX.WebAPI.Services
             
             this.Logger = Logger;
 
-            var ConnectionTimer = Stopwatch.StartNew();
+            
 
-            Database = InitializeDatabaseConnection(Config).ConfigureAwait(false).GetAwaiter().GetResult();
+            Database = InitializeDatabaseConnection(Config);
 
-            this.Logger.LogInformation($"Taken { ConnectionTimer.ElapsedMilliseconds }ms to connect to firestore database");
+            
 
         }
 
@@ -51,7 +51,7 @@ namespace ProjectX.WebAPI.Services
         /// Create the initial connection to the database.
         /// </summary>
         /// <returns>A constructed <see cref="FirestoreDb"/> class to access firestore through</returns>
-        private async Task<FirestoreDb> InitializeDatabaseConnection(IConfiguration Config)
+        private FirestoreDb InitializeDatabaseConnection(IConfiguration Config)
         {
 
             //
@@ -60,14 +60,22 @@ namespace ProjectX.WebAPI.Services
             // https://cloud.google.com/docs/authentication/production
             //
 
+            var ConnectionTimer = Stopwatch.StartNew();
+
             // Retrieve the credentials from the secrets
             var FirestoreBuilder = new FirestoreClientBuilder
             {
                 JsonCredentials = Config.GetJson("ApiKeys:FirestoreAccess")
             };
 
+            this.Logger.LogInformation($"Taken {ConnectionTimer.ElapsedMilliseconds}ms to connect to read firestore settings");
+
             // Connect to the firestore database
-            return await FirestoreDb.CreateAsync(projectId: "prototypeprojectx", client: FirestoreBuilder.Build()).ConfigureAwait(false);
+            var fb = FirestoreDb.Create(projectId: "prototypeprojectx", client: FirestoreBuilder.Build());
+
+            this.Logger.LogInformation($"Taken {ConnectionTimer.ElapsedMilliseconds}ms to connect to firestore database");
+
+            return fb;
 
         }
 
