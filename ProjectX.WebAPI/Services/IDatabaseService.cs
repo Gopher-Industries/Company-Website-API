@@ -2,6 +2,7 @@
 using Google.Cloud.Firestore.V1;
 using ProjectX.WebAPI.Models.Config;
 using ProjectX.WebAPI.Models.Database;
+using System.Diagnostics;
 
 namespace ProjectX.WebAPI.Services
 {
@@ -31,10 +32,19 @@ namespace ProjectX.WebAPI.Services
     {
 
         private readonly FirestoreDb Database;
+        private readonly ILogger<FirestoreDatabase> Logger;
 
-        public FirestoreDatabase(IConfiguration Config)
+        public FirestoreDatabase(IConfiguration Config, ILogger<FirestoreDatabase> Logger)
         {
+            
+            this.Logger = Logger;
+
+            var ConnectionTimer = Stopwatch.StartNew();
+
             Database = InitializeDatabaseConnection(Config).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            this.Logger.LogInformation($"Taken { ConnectionTimer.ElapsedMilliseconds }ms to connect to firestore database");
+
         }
 
         /// <summary>

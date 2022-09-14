@@ -39,13 +39,6 @@ namespace ProjectX.WebAPI.Services
             if (Request.StudentId is not null)
             {
 
-                //StudentQuery = (await this.Database.Collection("Timeline")
-                //                                   .Document("Collections")
-                //                                   .Collection("Students")
-                //                                   .WhereIn(FieldPath.DocumentId, FilteredStudentIds)
-                //                                   .GetSnapshotAsync().ConfigureAwait(false))
-                //                                   .Select(x => x.ConvertTo<TeamStudent>()).ToList();
-
                 StudentQuery = await this.Database.Collection("Timeline")
                                                   .Document("Collections")
                                                   .Collection("Students")

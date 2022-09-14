@@ -20,11 +20,14 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Configuration.AddEnvironmentVariables();
 
+builder.Configuration.AddJsonFile("appsettings.json");
+
 if (builder.Environment.IsDevelopment() is true)
     builder.Configuration.AddUserSecrets<Program>(true, true);
 else
     builder.Configuration.AddJsonStream(new MemoryStream(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("ProjectXAPIConfiguration"))));
-builder.Configuration.AddJsonFile("appsettings.json");
+
+
 builder.Services.Configure<ApplicationHostSettings>(builder.Configuration.GetSection("ApplicationHosting"));
 builder.Services.Configure<ApplicationIdentitySettings>(builder.Configuration.GetSection("ApplicationIdentity"));
 builder.Services.AddSingleton<ITokenService, TokenService>();
@@ -102,11 +105,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 
-//var Cert = new X509Certificate2(builder.Configuration["SSL:CertificatePath"], builder.Configuration["SSL:CertificatePassword"], X509KeyStorageFlags.MachineKeySet);
-
-//var pub = Cert.GetPublicKeyString();
-//var priv = Cert.PrivateKey.ToXmlString(false);
-
 // If we're not in development mode, startup the kesteral server and use our certificates!
 if (builder.Environment.IsDevelopment() is false)
 {
@@ -114,26 +112,14 @@ if (builder.Environment.IsDevelopment() is false)
     // Remove default URL's
     builder.WebHost.UseUrls("http://0.0.0.0:80");
 
-    //builder.WebHost.UseKestrel(serverOptions =>
-    //{
-    //    serverOptions.Listen(System.Net.IPAddress.Parse("0.0.0.0"), 443, listenOptions =>
-    //    {
-
-    //        listenOptions.UseHttps(
-    //            builder.Configuration["SSL:CertificatePath"],
-    //            builder.Configuration["SSL:CertificatePassword"]
-    //        );
-    //    });
-    //});
 }
 
 var app = builder.Build();
 
-//// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-//    app.Services.GetRequiredService<IOptions<ApplicationHostSettings>>().Value.HostingUrl = Environment.GetEnvironmentVariable("ASPNETCORE_URLS")?.Split(';').FirstOrDefault();
-//}
+//
+// Hotload api connections
+app.Services.GetRequiredService<IDatabaseService>();
+app.Services.GetRequiredService<IDialogFlowService>();
 
 app.MapSwagger();
 app.UseSwagger();
