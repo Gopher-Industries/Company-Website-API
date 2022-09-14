@@ -1,6 +1,7 @@
 ﻿using Google.Cloud.Dialogflow.V2;
 using Google.Cloud.Firestore;
 using ProjectX.WebAPI.Services;
+using System.Diagnostics;
 
 namespace ProjectX.WebAPI.Models.Database
 {
@@ -168,8 +169,16 @@ namespace ProjectX.WebAPI.Models.Database
         public async Task<IReadOnlyList<T>> GetAsync<T>() where T : class
         {
             //_query ??= CurrentCollectionReference;
-            return (await _query.GetSnapshotAsync().ConfigureAwait(false))
+
+            var RetrieveTimer = Stopwatch.StartNew();
+
+            var x = (await _query.GetSnapshotAsync().ConfigureAwait(false))
                                 .Select(x => x.ConvertTo<T>()).ToList();
+
+            Console.WriteLine($"Taken { RetrieveTimer.ElapsedMilliseconds }ms to get database records");
+
+            return x;
+
         }
 
         public async Task<T> SetDocumentAsync<T>(T Value) where T : class

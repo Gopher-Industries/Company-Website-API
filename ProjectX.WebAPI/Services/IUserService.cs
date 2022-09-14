@@ -24,23 +24,21 @@ namespace ProjectX.WebAPI.Services
 
         private readonly IDatabaseService Database;
         private readonly IMemoryCache Cache;
-        private readonly IDatabaseService DebugDatabase;
-        private readonly MemoryCacheEntryOptions _userModelCacheOptions = new MemoryCacheEntryOptions()
+        private static readonly MemoryCacheEntryOptions _userModelCacheOptions = new MemoryCacheEntryOptions()
         {
             Size = 500, // I did some very basic investigation and found UserModel's usually ~272 bytes in memory. 500 is buffer.
             AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60)
         };
-        private readonly MemoryCacheEntryOptions _userModelCopyCacheOptions = new MemoryCacheEntryOptions()
+        private static readonly MemoryCacheEntryOptions _userModelCopyCacheOptions = new MemoryCacheEntryOptions()
         {
             Size = 0, // We store copies pointing to the same block of memory so all good size is 0
             AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60)
         };
 
-        public UserService(IDatabaseService firestore, IMemoryCache cache, IDatabaseService debugDatabase)
+        public UserService(IDatabaseService Database, IMemoryCache cache)
         {
-            Database = firestore;
+            this.Database = Database;
             Cache = cache;
-            DebugDatabase = debugDatabase;
         }
 
         public async Task<UserModel?> CreateUser(CreateUserRequest Request)
@@ -78,7 +76,7 @@ namespace ProjectX.WebAPI.Services
 
             //
             // Find based on the UserId
-            if (Request.UserId != null)
+            if (Request.UserId is not null)
             {
                 if (Cache.TryGetValue(Request.UserId, out user))
                     return user;
@@ -99,14 +97,14 @@ namespace ProjectX.WebAPI.Services
 
             //
             // Find based on the Username
-            else if (Request.Username != null)
+            else if (Request.Username is not null)
             {
 
                 if (Cache.TryGetValue(Request.Username, out user))
                     return user;
 
                 user = (await Database.Collection("Users")
-                                  .WhereEqual("Username", Request.Username)
+                                  .WhereEqual(nameof(UserModel.Username), Request.Username)
                                   .Limit(1)
                                   .GetAsync<UserModel>().ConfigureAwait(false))
                                   .FirstOrDefault();
@@ -125,7 +123,7 @@ namespace ProjectX.WebAPI.Services
             {
 
                 user = (await Database.Collection("Users")
-                                  .WhereEqual("Email", Request.Email)
+                                  .WhereEqual(nameof(UserModel.Email), Request.Email)
                                   .Limit(1)
                                   .GetAsync<UserModel>().ConfigureAwait(false))
                                   .FirstOrDefault();

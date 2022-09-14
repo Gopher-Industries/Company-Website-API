@@ -62,7 +62,7 @@ namespace ProjectX.WebAPI.Services
 
         private readonly IDatabaseService Database;
         private readonly IMemoryCache cache;
-        private readonly MemoryCacheEntryOptions _userAuthModelCacheOptions = new MemoryCacheEntryOptions()
+        private static readonly MemoryCacheEntryOptions _userAuthModelCacheOptions = new MemoryCacheEntryOptions()
         {
             Size = 400, // I did some very basic investigation and found UserModel's usually ~350 bytes in memory. 400 is buffer.
             AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(6)
