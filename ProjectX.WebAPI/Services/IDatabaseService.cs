@@ -63,15 +63,15 @@ namespace ProjectX.WebAPI.Services
             var ConnectionTimer = Stopwatch.StartNew();
 
             // Retrieve the credentials from the secrets
-            var FirestoreBuilder = new FirestoreClientBuilder
-            {
-                JsonCredentials = Config.GetJson("ApiKeys:FirestoreAccess")
-            };
+            //var FirestoreBuilder = new FirestoreClientBuilder
+            //{
+            //    JsonCredentials = Config.GetJson("ApiKeys:FirestoreAccess")
+            //};
 
-            this.Logger.LogInformation($"Taken {ConnectionTimer.ElapsedMilliseconds}ms to connect to read firestore settings");
+            //this.Logger.LogInformation($"Taken {ConnectionTimer.ElapsedMilliseconds}ms to connect to read firestore settings");
 
             // Connect to the firestore database
-            var fb = FirestoreDb.Create(projectId: "prototypeprojectx", client: FirestoreBuilder.Build());
+            var fb = FirestoreDb.Create(projectId: "prototypeprojectx", client: null);
 
             this.Logger.LogInformation($"Taken {ConnectionTimer.ElapsedMilliseconds}ms to connect to firestore database");
 
