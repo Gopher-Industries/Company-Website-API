@@ -9,8 +9,6 @@ namespace ProjectX.WebAPI.Services
     public interface IDatabaseService
     {
 
-        public Task<bool> Initialize();
-
         public IDatabaseCollectionReference Collection(string CollectionPath);
 
         public Task<T> GetDocument<T>(string CollectionPath, string DocumentId) where T : class;
@@ -33,15 +31,14 @@ namespace ProjectX.WebAPI.Services
     public class FirestoreDatabase : IDatabaseService
     {
 
-        private FirestoreDb Database;
-        private readonly IConfiguration Config;
+        private readonly FirestoreDb Database;
         private readonly ILogger<FirestoreDatabase> Logger;
 
         public FirestoreDatabase(IConfiguration Config, ILogger<FirestoreDatabase> Logger)
         {
             
             this.Logger = Logger;
-            this.Config = Config;
+            this.Database = this.Initialize(Config);
 
         }
 
@@ -49,7 +46,7 @@ namespace ProjectX.WebAPI.Services
         /// Create the initial connection to the database.
         /// </summary>
         /// <returns>A constructed <see cref="FirestoreDb"/> class to access firestore through</returns>
-        public async Task<bool> Initialize()
+        private FirestoreDb Initialize(IConfiguration Config)
         {
 
             //
@@ -68,17 +65,17 @@ namespace ProjectX.WebAPI.Services
 
             ConnectionTimer.Restart();
 
-            var FirestoreClient = await new FirestoreClientBuilder
+            var FirestoreClient = new FirestoreClientBuilder
             {
                 JsonCredentials = FirestoreAccess,
-            }.BuildAsync().ConfigureAwait(false);
+            }.Build();
 
             // Connect to the firestore database
-            this.Database = FirestoreDb.Create(projectId: "prototypeprojectx", client: FirestoreClient);
+            var fb = FirestoreDb.Create(projectId: "prototypeprojectx", client: FirestoreClient);
 
             this.Logger.LogInformation($"Taken {ConnectionTimer.ElapsedMilliseconds}ms to connect to firestore database");
 
-            return true;
+            return fb;
 
         }
 
@@ -157,110 +154,4 @@ namespace ProjectX.WebAPI.Services
 
         }
     }
-
-    //public enum DatabaseFilterOperation
-    //{
-    //    LessThan = 1,
-    //    LessThanOrEqual = 2,
-    //    GreaterThan = 3,
-    //    GreaterThanOrEqual = 4,
-    //    Equal = 5,
-    //    NotEqual = 6,
-    //    ArrayContains = 7,
-    //    In = 8,
-    //    ArrayContainsAny = 9,
-    //    NotIn = 10,
-    //}
-
-    //public record DatabaseFilter
-    //{
-
-    //    /// <summary>
-    //    /// The field name to perform the filter on
-    //    /// </summary>
-    //    public string FieldName { get; init; }
-
-    //    public DatabaseFilterOperation Operation { get; init; }
-
-    //    /// <summary>
-    //    /// The value to compare against
-    //    /// </summary>
-    //    public object Value { get; init; }
-
-    //    private DatabaseFilter()
-    //    {
-
-    //    }
-
-    //    public static DatabaseFilter WhereLessThan(string FieldName, object Value) => new DatabaseFilter
-    //    {
-    //        FieldName = FieldName,
-    //        Operation = DatabaseFilterOperation.LessThan,
-    //        Value = Value
-    //    };
-
-    //    public static DatabaseFilter WhereLessThanOrEqual(string FieldName, object Value) => new DatabaseFilter
-    //    {
-    //        FieldName = FieldName,
-    //        Operation = DatabaseFilterOperation.LessThanOrEqual,
-    //        Value = Value
-    //    };
-
-    //    public static DatabaseFilter WhereGreaterThan(string FieldName, object Value) => new DatabaseFilter
-    //    {
-    //        FieldName = FieldName,
-    //        Operation = DatabaseFilterOperation.GreaterThan,
-    //        Value = Value
-    //    };
-
-    //    public static DatabaseFilter WhereGreaterThanOrEqual(string FieldName, object Value) => new DatabaseFilter
-    //    {
-    //        FieldName = FieldName,
-    //        Operation = DatabaseFilterOperation.GreaterThanOrEqual,
-    //        Value = Value
-    //    };
-
-    //    public static DatabaseFilter WhereEqual(string FieldName, object Value) => new DatabaseFilter
-    //    {
-    //        FieldName = FieldName,
-    //        Operation = DatabaseFilterOperation.Equal,
-    //        Value = Value
-    //    };
-
-    //    public static DatabaseFilter WhereNotEqual(string FieldName, object Value) => new DatabaseFilter
-    //    {
-    //        FieldName = FieldName,
-    //        Operation = DatabaseFilterOperation.NotEqual,
-    //        Value = Value
-    //    };
-
-    //    public static DatabaseFilter WhereArrayContains(string FieldName, object Value) => new DatabaseFilter
-    //    {
-    //        FieldName = FieldName,
-    //        Operation = DatabaseFilterOperation.ArrayContains,
-    //        Value = Value
-    //    };
-
-    //    public static DatabaseFilter WhereIn(string FieldName, IEnumerable<object> Value) => new DatabaseFilter
-    //    {
-    //        FieldName = FieldName,
-    //        Operation = DatabaseFilterOperation.In,
-    //        Value = Value
-    //    };
-
-    //    public static DatabaseFilter WhereArrayContainsAny(string FieldName, IEnumerable<object> Value) => new DatabaseFilter
-    //    {
-    //        FieldName = FieldName,
-    //        Operation = DatabaseFilterOperation.ArrayContainsAny,
-    //        Value = Value
-    //    };
-
-    //    public static DatabaseFilter WhereNotIn(string FieldName, IEnumerable<object> Value) => new DatabaseFilter
-    //    {
-    //        FieldName = FieldName,
-    //        Operation = DatabaseFilterOperation.NotIn,
-    //        Value = Value
-    //    };
-
-    //}
 }
