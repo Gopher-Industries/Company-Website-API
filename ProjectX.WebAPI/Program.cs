@@ -118,7 +118,7 @@ var app = builder.Build();
 
 //
 // Hotload api connections'
-var DatabaseInitialize = Task.Run(() => app.Services.GetRequiredService<IDatabaseService>());
+//var DatabaseInitialize = Task.Run(() => app.Services.GetRequiredService<IDatabaseService>());
 //app.Services.GetRequiredService<IDialogFlowService>();
 
 app.MapSwagger();
@@ -133,6 +133,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-await DatabaseInitialize;
+//await DatabaseInitialize;
 
 app.Run();
