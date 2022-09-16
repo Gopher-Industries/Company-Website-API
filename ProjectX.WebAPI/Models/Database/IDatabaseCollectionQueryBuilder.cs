@@ -172,12 +172,15 @@ namespace ProjectX.WebAPI.Models.Database
 
             var RetrieveTimer = Stopwatch.StartNew();
 
-            var x = (await _query.GetSnapshotAsync().ConfigureAwait(false))
-                                .Select(x => x.ConvertTo<T>()).ToList();
+            var x = (await _query.GetSnapshotAsync().ConfigureAwait(false));
 
-            Console.WriteLine($"Taken { RetrieveTimer.ElapsedMilliseconds }ms to get database records");
+            Console.WriteLine($"Taken {RetrieveTimer.ElapsedMilliseconds}ms to get database records");
 
-            return x;
+            var conv = x.Select(x => x.ConvertTo<T>()).ToList();
+
+            //Console.WriteLine($"Taken { RetrieveTimer.ElapsedMilliseconds }ms to get database records");
+
+            return conv;
 
         }
 

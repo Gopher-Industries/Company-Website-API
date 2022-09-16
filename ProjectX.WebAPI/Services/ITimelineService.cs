@@ -60,11 +60,6 @@ namespace ProjectX.WebAPI.Services
 
             }
 
-            //var TeamQuery = this.Database.Collection("Timeline")
-            //                             .Document("Collections")
-            //                             .Collection("Teams")
-            //                             .WhereEqualTo(nameof(CompanyTeam.Trimester), Request.Trimester)
-            //                             as Query;
             var TeamQuery = this.Database.Collection("Timeline")
                                          .Document("Collections")
                                          .Collection("Teams")
@@ -77,17 +72,7 @@ namespace ProjectX.WebAPI.Services
                 TeamQuery = TeamQuery.WhereIn(nameof(CompanyTeam.TeamName), FilteredTeamNames);
             }
 
-            //Teams = (await TeamQuery.GetSnapshotAsync().ConfigureAwait(false))
-            //                    .Select(x => x.ConvertTo<CompanyTeamRestModel>())
-            //                    .ToList();
             var Teams = await TeamQuery.GetAsync<CompanyTeamRestModel>();
-
-            //StudentQuery ??= (await this.Database.Collection("Timeline")
-            //                                     .Document("Collections")
-            //                                     .Collection("Students")
-            //                                     .WhereIn(nameof(TeamStudent.TeamId), Teams.Select(x => x.TeamId))
-            //                                     .GetSnapshotAsync().ConfigureAwait(false))
-            //                                     .Select(x => x.ConvertTo<TeamStudent>()).ToList();
 
             if (Teams.Any() is false)
                 return Teams;

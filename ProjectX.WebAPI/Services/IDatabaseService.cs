@@ -55,23 +55,30 @@ namespace ProjectX.WebAPI.Services
             // https://cloud.google.com/docs/authentication/production
             //
 
+            //var DebugConnectionTimer = Stopwatch.StartNew();
+
+            //var ff = new FirestoreClientBuilder()
+            //{
+            //    JsonCredentials = Config.GetJson("ApiKeys:FirestoreAccess")
+            //}.Build();
+
+            //this.Logger.LogInformation($"Taken {DebugConnectionTimer.ElapsedMilliseconds}ms to connect to firestore client");
+
+            //ff.GetDocument(new GetDocumentRequest
+            //{
+            //    Name = "projects/prototypeprojectx/databases/(default)/documents/Users/2acbf664-3915-43ae-b988-631a9bc16580"
+            //});
+
+            //this.Logger.LogInformation($"Taken {DebugConnectionTimer.ElapsedMilliseconds}ms to connect to firestore client and read doc");
+
             var ConnectionTimer = Stopwatch.StartNew();
 
-            // Retrieve the credentials from the secrets
-
-            var FirestoreAccess = Config.GetJson("ApiKeys:FirestoreAccess");
-
-            this.Logger.LogInformation($"Taken {ConnectionTimer.ElapsedMilliseconds}ms to connect to read firestore settings");
-
-            ConnectionTimer.Restart();
-
-            var FirestoreClient = new FirestoreClientBuilder
-            {
-                JsonCredentials = FirestoreAccess,
-            }.Build();
-
             // Connect to the firestore database
-            var fb = FirestoreDb.Create(projectId: "prototypeprojectx", client: FirestoreClient);
+            var fb = new FirestoreDbBuilder()
+            {
+                ProjectId = Config["ApiKeys:FirestoreAccess:project_id"],
+                JsonCredentials = Config.GetJson("ApiKeys:FirestoreAccess")
+            }.Build();
 
             this.Logger.LogInformation($"Taken {ConnectionTimer.ElapsedMilliseconds}ms to connect to firestore database");
 
