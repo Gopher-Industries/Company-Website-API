@@ -14,10 +14,12 @@ namespace ProjectX.WebAPI.Controllers
     {
 
         private readonly ITimelineService TimelineService;
+        private readonly HttpClient client;
 
-        public TimelineController(ITimelineService TimelineService)
+        public TimelineController(ITimelineService TimelineService, HttpClient Client)
         {
             this.TimelineService = TimelineService;
+            client = Client;
         }
 
         /// <summary>
@@ -27,6 +29,9 @@ namespace ProjectX.WebAPI.Controllers
         [HttpGet()]
         public async Task<ObjectResult> Get([FromQuery] TimelineRequest Request)
         {
+
+            var response = await this.client.GetAsync("https://firestore.googleapis.com/v1/projects/prototypeprojectx/databases/(default)/documents/Users/2acbf664-3915-43ae-b988-631a9bc16580");
+            Console.WriteLine(response);
 
             return Ok(value: await TimelineService.GetTimeline(Request));
 

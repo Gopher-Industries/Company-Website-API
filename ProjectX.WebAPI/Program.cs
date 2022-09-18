@@ -44,6 +44,7 @@ builder.Services.AddSingleton<IDialogFlowService, DialogFlowService>();
 builder.Services.AddSingleton<IDatabaseService, FirestoreDatabase>();
 builder.Services.AddSingleton<ITimelineService, TimelineService>();
 builder.Services.AddSingleton<IUserService, UserService>();
+builder.Services.AddHttpClient();
 builder.Services.AddMemoryCache(builder =>
 {
     builder.SizeLimit = 50000000;
