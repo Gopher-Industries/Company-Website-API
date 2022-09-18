@@ -2,7 +2,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build
 WORKDIR /app
 EXPOSE 443
-EXPOSE 80
 
 # copy csproj and restore as distinct layers
 COPY ProjectX.WebAPI/*.csproj .

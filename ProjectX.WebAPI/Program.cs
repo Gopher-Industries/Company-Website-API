@@ -18,15 +18,26 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
+//
+// Setting up configuration
+//
+
 builder.Configuration.AddEnvironmentVariables();
+builder.Configuration.AddJsonFile("appsettings.json", false);
 
-builder.Configuration.AddJsonFile("appsettings.json");
+builder.Configuration.GetRequiredSection("ApplicationIdentity");
 
-if (builder.Environment.IsDevelopment() is true)
-    builder.Configuration.AddUserSecrets<Program>(true, true);
-else
-    builder.Configuration.AddJsonStream(new MemoryStream(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("ProjectXAPIConfiguration"))));
+builder.Configuration.AddUserSecrets<Program>(true, true);
 
+builder.Configuration.GetRequiredSection("ApplicationIdentity");
+
+if (builder.Configuration["ApplicationIdentity:AccessJWTSecret"] is null)
+{
+    if (Environment.GetEnvironmentVariable("ProjectXAPIConfiguration") is not null)
+        builder.Configuration.AddJsonStream(new MemoryStream(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("ProjectXAPIConfiguration"))));
+    else
+        throw new FileNotFoundException("No secrets configuration file found.");
+}
 
 builder.Services.Configure<ApplicationHostSettings>(builder.Configuration.GetSection("ApplicationHosting"));
 builder.Services.Configure<ApplicationIdentitySettings>(builder.Configuration.GetSection("ApplicationIdentity"));
@@ -113,8 +124,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 if (builder.Environment.IsDevelopment() is false)
 {
 
-    // Remove default URL's
-    builder.WebHost.UseUrls("http://0.0.0.0:80");
+    // Check if the port is injected as an environment varable $PORT
+
+    if (builder.Configuration["PORT"] is not null)
+        // Use the port given from the environment variable
+        builder.WebHost.UseUrls($"http://0.0.0.0:{builder.Configuration["PORT"]}");
+    else
+        // Default port is 80
+        builder.WebHost.UseUrls("http://0.0.0.0:80");
 
 }
 
