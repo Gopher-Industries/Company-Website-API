@@ -1,5 +1,9 @@
-﻿using Google.Cloud.Firestore;
+﻿using Google.Api.Gax.Grpc;
+using Google.Api.Gax.Grpc.Gcp;
+using Google.Api.Gax.Grpc.Rest;
+using Google.Cloud.Firestore;
 using Google.Cloud.Firestore.V1;
+using Grpc.Core;
 using ProjectX.WebAPI.Models.Config;
 using ProjectX.WebAPI.Models.Database;
 using System.Diagnostics;
@@ -8,6 +12,8 @@ namespace ProjectX.WebAPI.Services
 {
     public interface IDatabaseService
     {
+
+        public Task Initialize(IConfiguration Config);
 
         public IDatabaseCollectionReference Collection(string CollectionPath);
 
@@ -31,14 +37,22 @@ namespace ProjectX.WebAPI.Services
     public class FirestoreDatabase : IDatabaseService
     {
 
-        private readonly FirestoreDb Database;
+        private CancellationToken? DatabaseConnecting;
+        private FirestoreDb DatabaseReference;
         private readonly ILogger<FirestoreDatabase> Logger;
+
+        private FirestoreDb Database { 
+            get
+            {
+                DatabaseConnecting?.WaitHandle.WaitOne();
+                return DatabaseReference;
+            } 
+        }
 
         public FirestoreDatabase(IConfiguration Config, ILogger<FirestoreDatabase> Logger)
         {
-            
+
             this.Logger = Logger;
-            this.Database = this.Initialize(Config);
 
         }
 
@@ -46,7 +60,7 @@ namespace ProjectX.WebAPI.Services
         /// Create the initial connection to the database.
         /// </summary>
         /// <returns>A constructed <see cref="FirestoreDb"/> class to access firestore through</returns>
-        private FirestoreDb Initialize(IConfiguration Config)
+        public async Task Initialize(IConfiguration Config)
         {
 
             //
@@ -54,6 +68,9 @@ namespace ProjectX.WebAPI.Services
             // please refer to this to change the project that this connects to.
             // https://cloud.google.com/docs/authentication/production
             //
+
+            var TokenSource = new CancellationTokenSource();
+            this.DatabaseConnecting = TokenSource.Token;
 
             //var DebugConnectionTimer = Stopwatch.StartNew();
 
@@ -74,15 +91,25 @@ namespace ProjectX.WebAPI.Services
             var ConnectionTimer = Stopwatch.StartNew();
 
             // Connect to the firestore database
-            var fb = new FirestoreDbBuilder()
+            DatabaseReference = await new FirestoreDbBuilder()
             {
                 ProjectId = Config["ApiKeys:FirestoreAccess:project_id"],
-                JsonCredentials = Config.GetJson("ApiKeys:FirestoreAccess")
-            }.Build();
+                JsonCredentials = Config.GetJson("ApiKeys:FirestoreAccess"),
+                //Endpoint = "https://firestore.googleapis.com",
+                GrpcChannelOptions = GrpcChannelOptions.Empty
+                    .WithKeepAliveTime(TimeSpan.FromMinutes(1))
+                    .WithKeepAliveTimeout(TimeSpan.FromMinutes(1))
+                    .WithEnableServiceConfigResolution(false)
+                    .WithMaxReceiveMessageSize(int.MaxValue),
+                GrpcAdapter = GrpcNetClientAdapter.Default
+
+            }.BuildAsync().ConfigureAwait(false);
+
+            //Console.WriteLine($"Channel: { fb.Client.GrpcClient. }");
 
             this.Logger.LogInformation($"Taken {ConnectionTimer.ElapsedMilliseconds}ms to connect to firestore database");
 
-            return fb;
+            TokenSource.Cancel();
 
         }
 
@@ -125,7 +152,7 @@ namespace ProjectX.WebAPI.Services
                                              .SetAsync(Value)
                                              .ConfigureAwait(false))
                                              is not null;
-            
+
         }
 
         public async Task<bool> UpdateDocument<T>(string CollectionPath, string DocumentId, params (string, object)[] Updates) where T : class
@@ -145,7 +172,7 @@ namespace ProjectX.WebAPI.Services
 
             return (await this.Database.Document($"{CollectionPath}/{DocumentId}")
                                        .DeleteAsync()
-                                       .ConfigureAwait(false)) 
+                                       .ConfigureAwait(false))
                                        is not null;
 
         }

@@ -44,7 +44,6 @@ builder.Services.AddSingleton<IDialogFlowService, DialogFlowService>();
 builder.Services.AddSingleton<IDatabaseService, FirestoreDatabase>();
 builder.Services.AddSingleton<ITimelineService, TimelineService>();
 builder.Services.AddSingleton<IUserService, UserService>();
-builder.Services.AddHttpClient();
 builder.Services.AddMemoryCache(builder =>
 {
     builder.SizeLimit = 50000000;
@@ -138,6 +137,7 @@ var app = builder.Build();
 // Hotload api connections'
 //var DatabaseInitialize = Task.Run(() => app.Services.GetRequiredService<IDatabaseService>());
 //app.Services.GetRequiredService<IDialogFlowService>();
+app.Services.GetRequiredService<IDatabaseService>().Initialize(app.Configuration);
 
 app.MapSwagger();
 app.UseSwagger();
