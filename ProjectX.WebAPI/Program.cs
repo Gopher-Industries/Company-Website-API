@@ -25,11 +25,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Configuration.AddEnvironmentVariables();
 builder.Configuration.AddJsonFile("appsettings.json", false);
 
-builder.Configuration.GetRequiredSection("ApplicationIdentity");
-
 builder.Configuration.AddUserSecrets<Program>(true, true);
-
-builder.Configuration.GetRequiredSection("ApplicationIdentity");
 
 if (builder.Configuration["ApplicationIdentity:AccessJWTSecret"] is null)
 {
