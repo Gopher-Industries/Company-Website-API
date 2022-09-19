@@ -27,10 +27,10 @@ namespace ProjectX.WebAPI.Models.Database.Timeline
         public string LinkedInProfile { get; set; }
 
         /// <summary>
-        /// A picture of the student, base64 encoded
+        /// A link to the users profile picture
         /// </summary>
         [FirestoreProperty]
-        public string DisplayPicture { get; set; }
+        public string ProfilePicture { get; set; }
 
         /// <summary>
         /// The role of the user
@@ -56,7 +56,7 @@ namespace ProjectX.WebAPI.Models.Database.Timeline
         /// The id of the team that the student belongs to
         /// </summary>
         [FirestoreProperty]
-        public string TeamId { get; set; }
+        public string[] Teams { get; set; }
 
     }
 }

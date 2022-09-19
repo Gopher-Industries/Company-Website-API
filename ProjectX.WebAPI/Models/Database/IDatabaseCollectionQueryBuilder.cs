@@ -31,8 +31,8 @@ namespace ProjectX.WebAPI.Models.Database
     {
         IDatabaseCollectionReference Collection(string CollectionName);
         Task<T> CreateDocumentAsync<T>(T Value) where T : class;
-        Task<T> GetDocumentAsync<T>() where T : class;
-        Task<T> DeleteDocumentAsync<T>() where T : class;
+        Task<T?> GetDocumentAsync<T>() where T : class;
+        Task<T?> DeleteDocumentAsync<T>() where T : class;
         Task<T> SetDocumentAsync<T>(T Value) where T : class;
     }
 
@@ -197,7 +197,7 @@ namespace ProjectX.WebAPI.Models.Database
 
         }
 
-        public async Task<T> DeleteDocumentAsync<T>() where T : class
+        public async Task<T?> DeleteDocumentAsync<T>() where T : class
         {
 
             _query ??= CurrentCollectionReference;
@@ -205,11 +205,18 @@ namespace ProjectX.WebAPI.Models.Database
             var Doc = await CurrentCollectionReference.Document(CurrentDocumentReference)
                                                       .GetSnapshotAsync()
                                                       .ConfigureAwait(false);
-            var DocAsType = Doc.ConvertTo<T>();
 
-            await Doc.Reference.DeleteAsync();
+            if (Doc.Exists)
+            {
 
-            return DocAsType;
+                var DocAsType = Doc.ConvertTo<T>();
+
+                await Doc.Reference.DeleteAsync();
+
+                return DocAsType;
+            }
+
+            return null;
 
         }
 

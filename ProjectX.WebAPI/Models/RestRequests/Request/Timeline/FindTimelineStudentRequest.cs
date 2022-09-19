@@ -1,6 +1,6 @@
-﻿namespace ProjectX.WebAPI.Models.RestRequests.Request
+﻿namespace ProjectX.WebAPI.Models.RestRequests.Request.Timeline
 {
-    public record FindStudentRequest
+    public record FindTimelineStudentRequest
     {
 
         /// <summary>

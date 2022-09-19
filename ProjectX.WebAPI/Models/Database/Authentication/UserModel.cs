@@ -10,7 +10,12 @@ namespace ProjectX.WebAPI.Models.Database.Authentication
     public class UserModel
     {
 
-        private UserModel()
+        //private UserModel()
+        //{
+
+        //}
+
+        public UserModel()
         {
 
         }
@@ -28,7 +33,7 @@ namespace ProjectX.WebAPI.Models.Database.Authentication
             EmailVerified = false;
             Created = DateTime.UtcNow;
             this.DateOfBirth = DateOfBirth;
-            ExistsInDatabase = false;
+            //ExistsInDatabase = false;
         }
 
         [FirestoreProperty]
@@ -41,7 +46,7 @@ namespace ProjectX.WebAPI.Models.Database.Authentication
         public string Email { get; set; }
 
         [FirestoreProperty]
-        public string Organisation { get; }
+        public string Organisation { get; set; }
 
         [FirestoreProperty]
         public bool EmailVerified { get; set; }
@@ -57,7 +62,7 @@ namespace ProjectX.WebAPI.Models.Database.Authentication
         /// </summary>
         public TimeSpan Age => DateTime.Now - DateOfBirth;
 
-        internal bool ExistsInDatabase { get; } = true;
+        //internal bool ExistsInDatabase { get; } = true;
 
     }
 }

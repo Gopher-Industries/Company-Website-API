@@ -37,7 +37,7 @@ namespace ProjectX.WebAPI.Controllers
         /// <param name="UserId"></param>
         /// <returns></returns>
         [HttpGet("{UserId}", Name = "Get User")]
-        public async Task<ObjectResult> GetUser([FromQuery] string UserId)
+        public async Task<ObjectResult> GetUser([FromRoute] string UserId)
         {
             
             var AccessToken = this.TokenService.ReadAccessToken(this.HttpContext.User);
@@ -48,7 +48,7 @@ namespace ProjectX.WebAPI.Controllers
 
             var UserAcc = await this.UserService.GetUser(new FindUserRequest { UserId = UserId }).ConfigureAwait(false);
 
-            return UserAcc is null ? 
+            return UserAcc is not null ? 
                    Ok(UserAcc) : 
                    NotFound($"User was not found: '{ UserId }'");
 
@@ -59,12 +59,12 @@ namespace ProjectX.WebAPI.Controllers
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        [HttpPost("register")]
+        [HttpPost()]
         [AllowAnonymous]
         [SwaggerOperation(summary: "Register a user by parsing a request to this endpoint")]
         [SwaggerResponse(StatusCodes.Status201Created, description: "The user was registered successfully")]
         [SwaggerResponse(StatusCodes.Status409Conflict, description: "The user already exists within the service")]
-        public async Task<ObjectResult> Register([FromBody] CreateUserRequest Request)
+        public async Task<ObjectResult> CreateUser([FromBody] CreateUserRequest Request)
         {
 
             // Ensure that the user doesn't already exist
@@ -84,26 +84,76 @@ namespace ProjectX.WebAPI.Controllers
         }
 
         /// <summary>
+        /// Retrieve information regarding a user
+        /// </summary>
+        /// <param name="UserId"></param>
+        /// <returns></returns>
+        [HttpDelete("{UserId}", Name = "Delete User")]
+        public async Task<ObjectResult> DeleteUser([FromRoute] string UserId)
+        {
+
+            var AccessToken = this.TokenService.ReadAccessToken(this.HttpContext.User);
+
+            // If they try and access someone elses account as a standard user
+            if (AccessToken.UserId != UserId && AccessToken.Role != UserRole.Admin)
+                return Unauthorized(value: "You are not an admin user and therefore cannot access other peoples accounts.");
+
+            var DeletedUserAccount = await this.UserService.DeleteUser(UserId).ConfigureAwait(false);
+
+            return DeletedUserAccount is not null ?
+                   Ok(DeletedUserAccount) :
+                   NotFound($"User was not found: '{UserId}'");
+
+        }
+
+        /// <summary>
+        /// Retrieve information regarding a user
+        /// </summary>
+        /// <param name="UserId"></param>
+        /// <returns></returns>
+        [HttpPatch("{UserId}", Name = "Edit User")]
+        [SwaggerResponse(StatusCodes.Status200OK, description: "The user had their email verified successfully.")]
+        public async Task<ObjectResult> UpdateUser([FromRoute] string UserId, [FromBody] UpdateUserRequest Request)
+        {
+
+            var AccessToken = this.TokenService.ReadAccessToken(this.HttpContext.User);
+
+            // If they try and access someone elses account as a standard user
+            if (AccessToken.UserId != UserId && AccessToken.Role != UserRole.Admin)
+                return Unauthorized(value: "You are not an admin user and therefore cannot access other peoples accounts.");
+
+            Request.UserId = UserId;
+
+            var UpdatedUser = await this.UserService.UpdateUser(Request).ConfigureAwait(false);
+
+            return UpdatedUser ?
+                   Ok(UpdatedUser) :
+                   NotFound($"User was not found: '{UserId}'");
+
+        }
+
+        /// <summary>
         /// This is where callbacks come to validate the email address.
         /// </summary>
         /// <param name="UserId"></param>
         /// <returns></returns>
-        [HttpGet("register/validate")]
+        [HttpGet("{UserId}/validate")]
         [AllowAnonymous]
         [SwaggerOperation(summary: "Validate a users email by parsing their UserId to this endpoint")]
         [SwaggerResponse(StatusCodes.Status202Accepted, description: "The user had their email verified successfully.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, description: "The user Id does not exist.")]
-        public async Task<StatusCodeResult> ValidateEmailOfUser([FromQuery] string UserId)
+        public async Task<StatusCodeResult> ValidateEmailOfUser([FromRoute] string UserId)
         {
 
-            var User = await this.UserService.GetUser(new FindUserRequest { UserId = UserId }).ConfigureAwait(false);
-
-            User.EmailVerified = true;
-
             // Try and validate the user email, and if it fails, return BadRequest
-            return await this.UserService.UpdateUser(User)
-                                         .ConfigureAwait(false)
-                                         ? StatusCode(StatusCodes.Status202Accepted) : BadRequest();
+            return await this.UserService.UpdateUser(new UpdateUserRequest
+                                                    {
+                                                        UserId = UserId,
+                                                        EmailVerified = true
+                                                    })
+                                         .ConfigureAwait(false) ? 
+                                          StatusCode(StatusCodes.Status202Accepted) :
+                                          BadRequest();
 
         }
 

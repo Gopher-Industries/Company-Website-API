@@ -1,6 +1,6 @@
 ﻿namespace ProjectX.WebAPI.Models.RestRequests.Request.Timeline
 {
-    public record TimelineRequest
+    public record GetTimelineRequest
     {
 
         /// <summary>

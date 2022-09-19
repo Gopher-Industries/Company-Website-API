@@ -10,7 +10,7 @@ namespace ProjectX.WebAPI.Services
     public interface ITimelineService
     {
 
-        public Task<IReadOnlyList<CompanyTeamRestModel>> GetTimeline(TimelineRequest Request);
+        public Task<IReadOnlyList<CompanyTeamRestModel>> GetTimeline(GetTimelineRequest Request);
 
         /// <summary>
         /// Creates a new student in the timeline
@@ -26,15 +26,42 @@ namespace ProjectX.WebAPI.Services
         /// <param name="Request"></param>
         /// <exception cref="ArgumentException"/>
         /// <returns></returns>
-        public Task<TimelineStudent?> GetStudent(FindStudentRequest Request);
+        public Task<TimelineStudent?> GetStudent(FindTimelineStudentRequest Request);
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="Request"></param>
-        /// <exception cref="ArgumentException"/>
         /// <returns></returns>
         public Task<TimelineStudent?> DeleteStudent(string StudentId);
+
+        /// <summary>
+        /// Creates a new student in the timeline
+        /// </summary>
+        /// <param name="Request"></param>
+        /// <exception cref="ArgumentException"/>
+        /// <returns></returns>
+        public Task<TimelineTeam> CreateTeam(CreateTimelineTeamRequest Request);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Request"></param>
+        /// <returns></returns>
+        public Task<TimelineTeam?> GetTeam(string TeamId);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Request"></param>
+        /// <returns></returns>
+        public Task<TimelineTeam?> FindTeam(FindTimelineTeamRequest Request);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public Task<TimelineTeam?> DeleteTeam(string TeamId);
 
     }
 
@@ -56,7 +83,7 @@ namespace ProjectX.WebAPI.Services
             Cache = cache;
         }
 
-        public async Task<IReadOnlyList<CompanyTeamRestModel>> GetTimeline(TimelineRequest Request)
+        public async Task<IReadOnlyList<CompanyTeamRestModel>> GetTimeline(GetTimelineRequest Request)
         {
 
             var FilteredTeamNames = Request.TeamName?
@@ -82,8 +109,7 @@ namespace ProjectX.WebAPI.Services
                 // Filter the team names by the teams that the students belong to
                 if (FilteredTeamNames is not null)
                 {
-                    FilteredTeamNames = StudentQuery.SelectMany(x => x.TeamId.Split(',')
-                                                                             .Select(id => id.Trim()))
+                    FilteredTeamNames = StudentQuery.SelectMany(x => x.Teams)
                                                     .Distinct()
                                                     .Where(x => FilteredTeamNames is null || FilteredTeamNames.Contains(x)).ToList();
 
@@ -114,11 +140,11 @@ namespace ProjectX.WebAPI.Services
             StudentQuery ??= await this.Database.Collection("Timeline")
                                                 .Document("Collections")
                                                 .Collection("Students")
-                                                .WhereIn(nameof(TimelineStudent.TeamId), Teams.Select(x => x.TeamId))
+                                                .WhereArrayContainsAny(nameof(TimelineStudent.Teams), Teams.Select(x => x.TeamId))
                                                 .GetAsync<TimelineStudent>();
 
             foreach (var Team in Teams)
-                Team.Students = StudentQuery.Where(x => x.TeamId == Team.TeamId).ToList();
+                Team.Students = StudentQuery.Where(x => x.Teams.Contains(Team.TeamId)).ToList();
 
             return Teams;
 
@@ -132,48 +158,43 @@ namespace ProjectX.WebAPI.Services
                 StudentId = Guid.NewGuid().ToString(),
                 FullName = Request.FullName,
                 Role = Request.Role,
-                DisplayPicture = Request.DisplayPicture,
+                ProfilePicture = Request.ProfilePicture,
                 RemarkableAchievements = Request.RemarkableAchievements,
                 AreaOfSpecialization = Request.AreaOfSpecialization,
                 LinkedInProfile = Request.LinkedInProfile,
             };
 
             // If TeamName or TeamTrimester is specified
-            if (Request.TeamName is not null || Request.TeamTrimester is not null)
+            if (Request.Teams?.Any() is true)
             {
 
-                // Team name and team trimester must both be filled or empty.
-                // One cannot exist without the other.
-                // We use an xor operator to check this.
-                if (Request.TeamName is null ^ Request.TeamTrimester is null)
+                NewStudent.Teams = Request.Teams.AsParallel().Select(async Team =>
                 {
-                    throw new ArgumentNullException($"Both { nameof(CreateTimelineStudentRequest.TeamName) } and {nameof(CreateTimelineStudentRequest.TeamTrimester)} must be specified", nameof(Request.TeamName));
-                }
 
-                var StudentsTeam = await this.Database.Collection("Timeline")
-                                                      .Document("Collections")
-                                                      .Collection("Teams")
-                                                      .WhereEqual(nameof(TimelineTeam.Trimester), Request.TeamTrimester)
-                                                      .WhereEqual(nameof(TimelineTeam.TeamName), Request.TeamName)
-                                                      .Limit(1)
-                                                      .GetAsync<TimelineTeam>()
-                                                      .ConfigureAwait(false);
+                    var StudentsTeam = await this.Database.Collection("Timeline")
+                                                          .Document("Collections")
+                                                          .Collection("Teams")
+                                                          .WhereEqual(nameof(Team.Trimester), Team.Trimester)
+                                                          .WhereEqual(nameof(Team.TeamName), Team.TeamName)
+                                                          .Limit(1)
+                                                          .GetAsync<TimelineTeam>()
+                                                          .ConfigureAwait(false);
 
-                if (StudentsTeam.IsNullOrEmpty())
-                    throw new ArgumentException("There's no team name matching ", nameof(TimelineTeam.TeamName));
+                    if (StudentsTeam.IsNullOrEmpty())
+                        throw new ArgumentException("There's no team name matching ", nameof(Team.TeamName));
 
-                NewStudent.TeamId = StudentsTeam.First().TeamId;
+                    return StudentsTeam.First().TeamId;
+
+                }).ToArray().Select(x => x.ConfigureAwait(false).GetAwaiter().GetResult()).ToArray();
 
             }
 
-
-
-            var Result = await this.Database.Collection("Timeline")
-                                            .Document("Collections")
-                                            .Collection("Students")
-                                            .Document(NewStudent.StudentId)
-                                            .CreateDocumentAsync(NewStudent)
-                                            .ConfigureAwait(false);
+            var CreateTimelineStudentResult = await this.Database.Collection("Timeline")
+                                                                 .Document("Collections")
+                                                                 .Collection("Students")
+                                                                 .Document(NewStudent.StudentId)
+                                                                 .CreateDocumentAsync(NewStudent)
+                                                                 .ConfigureAwait(false);
 
             this.Cache.Set($"TimelineStudent-{NewStudent.StudentId}", NewStudent, _timelinePersonCacheOptions);
 
@@ -181,7 +202,7 @@ namespace ProjectX.WebAPI.Services
 
         }
 
-        public async Task<TimelineStudent?> GetStudent(FindStudentRequest Request)
+        public async Task<TimelineStudent?> GetStudent(FindTimelineStudentRequest Request)
         {
 
             if (Request.StudentId is not null)
@@ -221,6 +242,68 @@ namespace ProjectX.WebAPI.Services
                                       .Collection("Students")
                                       .Document(StudentId)
                                       .DeleteDocumentAsync<TimelineStudent>();
+
+        }
+
+        public async Task<TimelineTeam> CreateTeam(CreateTimelineTeamRequest Request)
+        {
+
+            //
+            // Validate 
+
+            var TimelineTeam = new TimelineTeam
+            {
+                TeamId = Guid.NewGuid().ToString(),
+                Description = Request.Description,
+                Logo = Request.Logo,
+                Mentors = Request.Mentors,
+                PrototypeLink = Request.PrototypeLink,
+                TeamName = Request.TeamName,
+                Trimester = Request.Trimester,
+                VideoLink = Request.VideoLink
+            };
+
+            return await this.Database.Collection("Timeline")
+                                      .Document("Collections")
+                                      .Collection("Teams")
+                                      .Document(TimelineTeam.TeamId)
+                                      .SetDocumentAsync<TimelineTeam>(TimelineTeam);
+
+        }
+
+        public async Task<TimelineTeam?> GetTeam(string TeamId)
+        {
+
+            return await this.Database.Collection("Timeline")
+                                      .Document("Collections")
+                                      .Collection("Teams")
+                                      .Document(TeamId)
+                                      .GetDocumentAsync<TimelineTeam>();
+
+        }
+
+        public async Task<TimelineTeam?> FindTeam(FindTimelineTeamRequest Request)
+        {
+
+            return (await this.Database.Collection("Timeline")
+                                       .Document("Collections")
+                                       .Collection("Teams")
+                                       .WhereEqual(nameof(TimelineTeam.TeamName), Request.TeamName)
+                                       .WhereEqual(nameof(TimelineTeam.Trimester), Request.Trimester)
+                                       .GetAsync<TimelineTeam>()
+                                       .ConfigureAwait(false))
+                                       .FirstOrDefault();
+
+        }
+
+        public async Task<TimelineTeam?> DeleteTeam(string TeamId)
+        {
+
+            return await this.Database.Collection("Timeline")
+                                      .Document("Collections")
+                                      .Collection("Teams")
+                                      .Document(TeamId)
+                                      .DeleteDocumentAsync<TimelineTeam>();
 
         }
 

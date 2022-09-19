@@ -1,6 +1,6 @@
 ﻿using Google.Cloud.Firestore;
 
-namespace ProjectX.WebAPI.Models.RestRequests.Request
+namespace ProjectX.WebAPI.Models.RestRequests.Request.Timeline
 {
     public record CreateTimelineStudentRequest
     {
@@ -20,7 +20,7 @@ namespace ProjectX.WebAPI.Models.RestRequests.Request
         /// <summary>
         /// Required: A picture of the student, base64 encoded
         /// </summary>
-        public string DisplayPicture { get; init; }
+        public string ProfilePicture { get; init; }
 
         /// <summary>
         /// Required: The role of the user
@@ -40,14 +40,19 @@ namespace ProjectX.WebAPI.Models.RestRequests.Request
         public string RemarkableAchievements { get; init; }
 
         /// <summary>
-        /// Optional: The team name that the student worked on
+        /// Optional: The teams that the student belonged to
         /// </summary>
-        public string TeamName { get; init; }
-
-        /// <summary>
-        /// Optional: The trimester of the given team. Required when TeamName is specified.
-        /// </summary>
-        public string TeamTrimester { get; init; }
+        public TimelineTeamReference[]? Teams { get; init; }
 
     }
+
+    public record TimelineTeamReference
+    {
+
+        public string Trimester { get; set; }
+
+        public string TeamName { get; set; }
+
+    }
+
 }
