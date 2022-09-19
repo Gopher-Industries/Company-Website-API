@@ -11,7 +11,7 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace ProjectX.WebAPI.Controllers
 {
     [ApiController]
-    [AllowAnonymous]
+    [Authorize]
     [Route("api/v1/timeline")]
     public class TimelineController : ControllerBase
     {
@@ -28,6 +28,7 @@ namespace ProjectX.WebAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet()]
+        [AllowAnonymous]
         [SwaggerResponse(StatusCodes.Status200OK, description: "Successfully retrieved the information for the timeline", typeof(CompanyTeamRestModel))]
         public async Task<ObjectResult> GetTimeline([FromQuery] GetTimelineRequest Request)
         {
@@ -62,6 +63,7 @@ namespace ProjectX.WebAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("students/{StudentId}")]
+        [AllowAnonymous]
         [SwaggerResponse(StatusCodes.Status200OK, description: "Successfully found the student", typeof(TimelineStudent))]
         [SwaggerResponse(StatusCodes.Status404NotFound, description: "Student was not found")]
         public async Task<ObjectResult> GetStudent([FromRoute] string StudentId)
@@ -123,6 +125,7 @@ namespace ProjectX.WebAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("teams/{TeamId}")]
+        [AllowAnonymous]
         [SwaggerResponse(StatusCodes.Status200OK, description: "Successfully found the student", typeof(TimelineStudent))]
         [SwaggerResponse(StatusCodes.Status404NotFound, description: "Student was not found")]
         public async Task<ObjectResult> GetTeam([FromRoute] string TeamId)
