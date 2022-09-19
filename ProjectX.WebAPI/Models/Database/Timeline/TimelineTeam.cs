@@ -3,7 +3,7 @@
 namespace ProjectX.WebAPI.Models.Database.Timeline
 {
     [FirestoreData]
-    public class CompanyTeam
+    public class TimelineTeam
     {
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace ProjectX.WebAPI.Models.Database.Timeline
         public string Description { get; init; }
 
         /// <summary>
-        /// The logo of the team, base64 encoded
+        /// A link to the team's logo
         /// </summary>
         [FirestoreProperty]
         public string Logo { get; init; }

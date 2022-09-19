@@ -3,7 +3,7 @@ using Google.Protobuf.WellKnownTypes;
 using Microsoft.Extensions.Caching.Memory;
 using ProjectX.WebAPI.Models.Database.Authentication;
 using ProjectX.WebAPI.Models.Database.Timeline;
-using ProjectX.WebAPI.Models.RestRequests.Request;
+using ProjectX.WebAPI.Models.RestRequests.Request.Users;
 using static Google.Cloud.Firestore.V1.StructuredQuery.Types.FieldFilter.Types;
 
 namespace ProjectX.WebAPI.Services
@@ -13,9 +13,11 @@ namespace ProjectX.WebAPI.Services
 
         public Task<UserModel> CreateUser(CreateUserRequest Request);
 
-        public Task<UserModel> GetUser(FindUserRequest Filter);
+        public Task<UserModel?> GetUser(FindUserRequest Filter);
 
-        public Task<bool> UpdateUser(UserModel User);
+        public Task<UserModel?> DeleteUser(string UserId);
+
+        public Task<bool> UpdateUser(UpdateUserRequest Request);
 
     }
 
@@ -141,18 +143,44 @@ namespace ProjectX.WebAPI.Services
 
         }
 
-        public async Task<bool> UpdateUser(UserModel User)
+        public async Task<UserModel?> DeleteUser(string UserId)
         {
 
-            //return this.DebugDatabase.SetDocument("Users", User.UserId, User);
+            return await this.Database.Collection("Users")
+                                      .Document(UserId)
+                                      .DeleteDocumentAsync<UserModel>()
+                                      .ConfigureAwait(false);
 
-            //var StudentDoc = await this.DebugDatabase.GetDocument<TeamStudent>("Timeline/Collections/Students", "e386bc95-bf6e-42c8-bcde-79b50fcf41c1");
-            //var StudentsDoc = await this.DebugDatabase.GetDocuments<TeamStudent>("Timeline/Collections/Students",
-            //                                                                     DatabaseFilter.Equal(FieldPath.DocumentId.ToString(), "e386bc95-bf6e-42c8-bcde-79b50fcf41c1"));
+        }
+
+        public async Task<bool> UpdateUser(UpdateUserRequest Request)
+        {
+
+            var OldUserData = await this.GetUser(new FindUserRequest { UserId = Request.UserId }).ConfigureAwait(false);
+            
+            if (OldUserData is null)
+                return false;
+
+            if (Request.Email is not null)
+                Request.EmailVerified = false;
+
+            var NewUserData = new UserModel
+            {
+                UserId = OldUserData.UserId,
+                Username = Request.Username ?? OldUserData.Username,
+                Email = Request.Email ?? OldUserData.Email,
+                EmailVerified = Request.EmailVerified ?? OldUserData.EmailVerified,
+                Created = OldUserData.Created,
+                DateOfBirth = Request.DateOfBirth ?? OldUserData.DateOfBirth,
+                Organisation = Request.OrganisationName ?? OldUserData.Organisation
+            };
+
+            Cache.Set(NewUserData.UserId, NewUserData, _userModelCacheOptions);
+            Cache.Set(NewUserData.Username, NewUserData, _userModelCopyCacheOptions);
 
             return (await this.Database.Collection("Users")
-                                       .Document(User.UserId)
-                                       .SetDocumentAsync(User)
+                                       .Document(NewUserData.UserId)
+                                       .SetDocumentAsync(NewUserData)
                                        .ConfigureAwait(false)) is not null;
 
         }
