@@ -3,7 +3,7 @@
 namespace ProjectX.WebAPI.Models.Database.Timeline
 {
     [FirestoreData]
-    public class CompanyTeam
+    public class TimelineTeam
     {
 
         /// <summary>

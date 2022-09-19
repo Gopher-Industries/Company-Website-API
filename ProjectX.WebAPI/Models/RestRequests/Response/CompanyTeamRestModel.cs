@@ -7,13 +7,13 @@ namespace ProjectX.WebAPI.Models.RestRequests.Response
 
     [DisplayName("Company Team")]
     [FirestoreData]
-    public class CompanyTeamRestModel : CompanyTeam
+    public class CompanyTeamRestModel : TimelineTeam
     {
 
         /// <summary>
         /// The students involved with the team
         /// </summary>
-        public List<TeamStudent> Students { get; set; }
+        public List<TimelineStudent> Students { get; set; }
 
     }
 }
