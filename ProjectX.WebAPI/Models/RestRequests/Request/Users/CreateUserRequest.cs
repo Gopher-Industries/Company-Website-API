@@ -1,4 +1,4 @@
-﻿namespace ProjectX.WebAPI.Models.RestRequests.Request
+﻿namespace ProjectX.WebAPI.Models.RestRequests.Request.Users
 {
     public record CreateUserRequest
     {

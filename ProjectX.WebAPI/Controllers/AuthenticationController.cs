@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using ProjectX.WebAPI.Models;
 using ProjectX.WebAPI.Models.RestRequests.Request;
+using ProjectX.WebAPI.Models.RestRequests.Request.Authentication;
+using ProjectX.WebAPI.Models.RestRequests.Request.Users;
 using ProjectX.WebAPI.Models.RestRequests.Response;
 using ProjectX.WebAPI.Services;
 using Swashbuckle.AspNetCore.Annotations;
@@ -35,7 +37,7 @@ namespace ProjectX.WebAPI.Controllers
         /// <returns></returns>
         [HttpPost("login")]
         [AllowAnonymous]
-        [SwaggerResponse(StatusCodes.Status202Accepted, description: "The user was registered successfully", typeof(LoginResponse))]
+        [SwaggerResponse(StatusCodes.Status200OK, description: "The user was registered successfully", typeof(LoginResponse))]
         [SwaggerResponse(StatusCodes.Status401Unauthorized, description: "Login credentials failed")]
         public async Task<ObjectResult> Login([FromBody] LoginRequest Request)
         {
@@ -55,7 +57,7 @@ namespace ProjectX.WebAPI.Controllers
             // Continue without waiting to add the refresh token in the database.
             _ = this.AuthService.AddRefreshToken(User, RefreshToken).ConfigureAwait(false);
 
-            return Accepted(value: new LoginResponse
+            return Ok(value: new LoginResponse
             {
                 AccessToken = TokenService.BuildAccessToken(User).SignedJWT,
                 RefreshToken = RefreshToken.SignedJWT

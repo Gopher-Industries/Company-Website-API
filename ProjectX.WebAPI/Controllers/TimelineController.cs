@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ProjectX.WebAPI.Models.Chatbot;
 using ProjectX.WebAPI.Models.Database.Timeline;
@@ -24,11 +23,12 @@ namespace ProjectX.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Users can send messages to our medi chatbot through this endpoint.
+        /// Users can retrieve information about the complete timeline from this endpoint
         /// </summary>
         /// <returns></returns>
         [HttpGet()]
-        public async Task<ObjectResult> Get([FromQuery] TimelineRequest Request)
+        [SwaggerResponse(StatusCodes.Status200OK, description: "Successfully retrieved the information for the timeline", typeof(CompanyTeamRestModel))]
+        public async Task<ObjectResult> GetTimeline([FromQuery] TimelineRequest Request)
         {
 
             return Ok(value: await TimelineService.GetTimeline(Request).ConfigureAwait(false));

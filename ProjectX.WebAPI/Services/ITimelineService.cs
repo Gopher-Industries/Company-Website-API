@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
 using ProjectX.WebAPI.Models.Database.Timeline;
-using ProjectX.WebAPI.Models.RestRequests.Request;
+using ProjectX.WebAPI.Models.RestRequests.Request.Timeline;
 using ProjectX.WebAPI.Models.RestRequests.Response;
 
 namespace ProjectX.WebAPI.Services

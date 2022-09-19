@@ -3,7 +3,7 @@ using Google.Protobuf.WellKnownTypes;
 using Microsoft.Extensions.Caching.Memory;
 using ProjectX.WebAPI.Models.Database.Authentication;
 using ProjectX.WebAPI.Models.Database.Timeline;
-using ProjectX.WebAPI.Models.RestRequests.Request;
+using ProjectX.WebAPI.Models.RestRequests.Request.Users;
 using static Google.Cloud.Firestore.V1.StructuredQuery.Types.FieldFilter.Types;
 
 namespace ProjectX.WebAPI.Services
