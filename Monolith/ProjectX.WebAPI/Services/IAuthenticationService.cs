@@ -79,12 +79,6 @@ namespace ProjectX.WebAPI.Services
       if (AuthModel == null)
         return false;
 
-      string salt = AuthModel.Salt;
-      string password = PlainTextPassword;
-      string pepper = appHashSettings.Value.HashingPepper;
-      string hash = AuthModel.HashedPassword;
-
-
       return BCrypt.Net.BCrypt.Verify(
           text: AuthModel.Salt + PlainTextPassword + appHashSettings.Value.HashingPepper,
           hash: AuthModel.HashedPassword,
