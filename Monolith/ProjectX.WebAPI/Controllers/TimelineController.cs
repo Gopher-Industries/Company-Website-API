@@ -27,13 +27,13 @@ namespace ProjectX.WebAPI.Controllers
         /// Users can retrieve information about the complete timeline from this endpoint
         /// </summary>
         /// <returns></returns>
-        [HttpGet()]
+        [HttpGet("student")]
         [AllowAnonymous]
-        [SwaggerResponse(StatusCodes.Status200OK, description: "Successfully retrieved the information for the timeline", typeof(CompanyTeamRestModel))]
-        public async Task<ObjectResult> GetTimeline([FromQuery] GetTimelineRequest Request)
+        [SwaggerResponse(StatusCodes.Status200OK, description: "Successfully retrieved the information for the student timeline", typeof(CompanyTeamRestModel))]
+        public async Task<ObjectResult> GetStudentTimeline()
         {
 
-            return Ok(value: await TimelineService.GetTimeline(Request).ConfigureAwait(false));
+            return Ok(value: await TimelineService.GetStudentTimeline().ConfigureAwait(false));
 
         }
 
@@ -41,7 +41,7 @@ namespace ProjectX.WebAPI.Controllers
         /// Create a new student in the timeline
         /// </summary>
         /// <returns></returns>
-        //[Authorize]
+        [Authorize]
         [HttpPost("students/create")]
         [SwaggerResponse(StatusCodes.Status200OK, description: "The student was created successfully", typeof(TimelineStudent))]
         public async Task<ObjectResult> CreateStudent([FromBody] CreateTimelineStudentRequest Request)
@@ -100,10 +100,32 @@ namespace ProjectX.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Add a team for the timeline
+        /// Update the student in the timeline
         /// </summary>
         /// <returns></returns>
         //[Authorize]
+        [HttpPut("students/update")]
+        [AllowAnonymous]
+        [SwaggerResponse(StatusCodes.Status200OK, description: "The student was updated successfully", typeof(TimelineStudent))]
+        public async Task<ObjectResult> UpdateStudent([FromBody] UpdateTimelineStudentRequest Request)
+        {
+
+            try
+            {
+                return Ok(value: await TimelineService.UpdateStudent(Request).ConfigureAwait(false));
+            }
+            catch (ArgumentException Ex)
+            {
+                return BadRequest(Ex.Message);
+            }
+
+        }
+
+        /// <summary>
+        /// Add a team for the timeline
+        /// </summary>
+        /// <returns></returns>
+        [Authorize]
         [HttpPost("teams/create")]
         [SwaggerResponse(StatusCodes.Status200OK, description: "The student was created successfully", typeof(TimelineStudent))]
         public async Task<ObjectResult> CreateTeam([FromBody] CreateTimelineTeamRequest Request)
