@@ -24,9 +24,6 @@ namespace ProjectX.WebAPI.Models.Database.Authentication
         [FirestoreProperty]
         public string Salt { get; set; }
 
-        [FirestoreProperty]
-        public string Pepper { get; set; }
-
         [FirestoreProperty(ConverterType = typeof(UserRoleFirestoreConverter))]
         public UserRole Role { get; set; }
 

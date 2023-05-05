@@ -96,7 +96,7 @@ namespace ProjectX.WebAPI.Services
                 //ProjectId = Config["ApiKeys:FirestoreAccess:project_id"],
                 //JsonCredentials = Config.GetJson("ApiKeys:FirestoreAccess"),
                 ProjectId = "sit-22t3-gopher-websit-a242043",
-                JsonCredentials = File.ReadAllText("sit-22t3-gopher-websit-a242043-e283fd98b08e.json"),
+                JsonCredentials = File.ReadAllText("projectx-credentials.json"),
                 //Endpoint = "https://firestore.googleapis.com",
                 GrpcChannelOptions = GrpcChannelOptions.Empty
                     .WithKeepAliveTime(TimeSpan.FromMinutes(1))
