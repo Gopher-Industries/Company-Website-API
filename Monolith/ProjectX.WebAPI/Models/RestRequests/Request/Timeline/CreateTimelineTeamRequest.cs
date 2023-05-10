@@ -4,29 +4,25 @@ namespace ProjectX.WebAPI.Models.RestRequests.Request.Timeline
 {
     public record CreateTimelineTeamRequest
     {
+        /// <summary>
+        /// Required: The ID of the team
+        /// </summary>
+        public string TeamId { get; init; }
 
         /// <summary>
         /// The name of the team
         /// </summary>
-        /// <example>Team Avengers</example>
         public string TeamName { get; init; }
 
         /// <summary>
-        /// The description of the team
+        /// Required: Title of the team's achievement
         /// </summary>
-        /// <example>Team Avengers</example>
+        public string Title { get; init; }
+
+        /// <summary>
+        /// Required: A short description (max 250 words) of the student's achievement
+        /// </summary>
         public string Description { get; init; }
-
-        /// <summary>
-        /// The logo of the team, base64 encoded
-        /// </summary>
-        public string Logo { get; init; }
-
-        /// <summary>
-        /// The trimester that the team work in
-        /// </summary>
-        /// <example>T2 2022</example>
-        public string Trimester { get; init; }
 
         /// <summary>
         /// The summary video for the team
@@ -39,12 +35,6 @@ namespace ProjectX.WebAPI.Models.RestRequests.Request.Timeline
         /// </summary>
         /// <example>https://api.gopherindustries.net/swagger/index.html</example>
         public string PrototypeLink { get; init; }
-
-        /// <summary>
-        /// The mentors that helped the team
-        /// </summary>
-        /// <example>Jenny Hummings, Olivia Ham</example>
-        public string[] Mentors { get; init; }
 
     }
 }
