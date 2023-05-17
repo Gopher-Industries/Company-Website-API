@@ -1,24 +1,24 @@
 ﻿namespace ProjectX.WebAPI.Models.RestRequests.Request.Timeline
 {
-    public record UpdateTimelineTeamRequest
+    public record UpdateTimelineStudentRequest
     {
         /// <summary>
         /// The ID of the team
         /// </summary>
-        public string TeamTimelineId { get; init; }
+        public string StudentTimelineId { get; init; }
 
         /// <summary>
         /// The id of the team
         /// </summary>
         /// 
-        public string? TeamId { get; init; }
+        public string? StudentId { get; init; }
 
 
         /// <summary>
         /// The full name of the team
         /// </summary>
         /// <example>John McFluffy</example>
-        public string? TeamName { get; init; }
+        public string? FullName { get; init; }
 
         /// <summary>
         /// Title of the student's achievement

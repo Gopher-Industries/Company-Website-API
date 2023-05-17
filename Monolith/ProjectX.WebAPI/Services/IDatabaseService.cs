@@ -17,6 +17,8 @@ namespace ProjectX.WebAPI.Services
 
         public IDatabaseCollectionReference Collection(string CollectionPath);
 
+        public Task<IReadOnlyList<T>> GetAllDocuments<T>(string CollectionPath) where T : class;
+
         public Task<T> GetDocument<T>(string CollectionPath, string DocumentId) where T : class;
 
         public Task<IReadOnlyList<T>> GetDocuments<T>(string CollectionPath, IEnumerable<string> DocumentIds) where T : class;
@@ -113,6 +115,15 @@ namespace ProjectX.WebAPI.Services
 
             TokenSource.Cancel();
 
+        }
+
+        public async Task<IReadOnlyList<T>> GetAllDocuments<T>(string CollectionPath) where T : class
+        {
+            var querySnapshot = await this.Database.Collection(CollectionPath)
+                                                 .GetSnapshotAsync()
+                                                 .ConfigureAwait(false);
+
+            return querySnapshot.Documents.Select(documentSnapshot => documentSnapshot.ConvertTo<T>()).ToList();
         }
 
         public async Task<T> GetDocument<T>(string CollectionPath, string DocumentId) where T : class

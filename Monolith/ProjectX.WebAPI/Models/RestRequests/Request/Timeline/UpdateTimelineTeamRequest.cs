@@ -1,56 +1,35 @@
 ﻿namespace ProjectX.WebAPI.Models.RestRequests.Request.Timeline
 {
-    public record UpdateTimelineStudentRequest
+    public record UpdateTimelineTeamRequest
     {
 
         /// <summary>
-        /// The full name of the student
+        /// The ID of the team
+        /// </summary>
+        public string TeamTimelineId { get; init; }
+
+        /// <summary>
+        /// The id of the team
+        /// </summary>
+        /// 
+        public string? TeamId { get; init; }
+
+
+        /// <summary>
+        /// The full name of the team
         /// </summary>
         /// <example>John McFluffy</example>
-        public string? FullName { get; init; }
-
-        /// <summary>
-        /// A link to the students linked in profile
-        /// </summary>
-        /// <example>https://au.linkedin.com/in/john-mcfluffy</example>
-        public string? LinkedInProfile { get; init; }
-
-        /// <summary>
-        /// A picture of the student, base64 encoded
-        /// </summary>
-        public string? ProfilePicture { get; init; }
-
-        /// <summary>
-        /// The role of the user
-        /// </summary>
-        /// <example>Scrum Master, Product Owner, or Developer</example>
-        public string ?Role { get; init; }
-
-        /// <summary>
-        /// Area where the student specialized
-        /// </summary>
-        /// <example>Frontend Development, UI/UX Design, Artificial Intelligence, etc.</example>
-        public string? AreaOfSpecialization { get; init; }
-
-        /// <summary>
-        /// Any remarkable achievements of the student
-        /// </summary>
-        public string? RemarkableAchievements { get; init; }
-
-        /// <summary>
-        /// The team name that the student worked on
-        /// </summary>
         public string? TeamName { get; init; }
 
         /// <summary>
-        /// The trimester of the given team. Required when TeamName is specified.
+        /// Title of the student's achievement
         /// </summary>
-        public string? TeamTrimester { get; init; }
+        public string? Title { get; init; }
 
         /// <summary>
-        /// The teams that the student belonged to
+        /// A short description (max 250 words) of the student's achievement
         /// </summary>
-        public TimelineTeamReference[]? Teams { get; init; }
+        public string? Description { get; init; }
 
     }
 }
