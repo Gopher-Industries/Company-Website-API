@@ -14,11 +14,11 @@ namespace ProjectX.WebAPI.Models.Database.Timeline
 
         public string TimelineStudentId { get; init; }
 
-        [FirestoreDocumentId]
+        [FirestoreProperty]
         /// <summary>
         /// The ID of the student
         /// </summary>
-        public string StudentId { get; init; }
+        public string StudentId { get; set; }
 
         /// <summary>
         /// The full name of the student

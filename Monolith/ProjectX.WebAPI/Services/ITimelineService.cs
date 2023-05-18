@@ -1,16 +1,14 @@
 ﻿using Google.Cloud.Firestore;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.IdentityModel.Tokens;
 using ProjectX.WebAPI.Models.Database.Timeline;
 using ProjectX.WebAPI.Models.RestRequests.Request.Timeline;
-using ProjectX.WebAPI.Models.RestRequests.Response;
 
 namespace ProjectX.WebAPI.Services
 {
   public interface ITimelineService
   {
 
-    public Task<IReadOnlyList<TimelineStudent>> GetStudentTimeline();
+    public Task<IReadOnlyList<TimelineStudent>> GetAllStudentTimelines();
 
     /// <summary>
     /// Creates a new student in the timeline
@@ -21,22 +19,31 @@ namespace ProjectX.WebAPI.Services
     public Task<TimelineStudent> CreateStudent(CreateTimelineStudentRequest Request);
 
     /// <summary>
-    ///
+    /// Retrieve a student timeline object
     /// </summary>
     /// <param name="Request"></param>
     /// <exception cref="ArgumentException"/>
     /// <returns></returns>
-    public Task<TimelineStudent?> GetStudent(FindTimelineStudentRequest Request);
+    public Task<TimelineStudent> GetAStudentTimeline(string TimelineStudentId);
+
 
     /// <summary>
-    ///
+    /// Retrieve the timelines of a particular student
+    /// </summary>
+    /// <param name="Request"></param>
+    /// <exception cref="ArgumentException"/>
+    /// <returns></returns>
+    public Task<IReadOnlyList<TimelineStudent>> GetStudentTimelines(FindTimelineStudentRequest Request);
+
+    /// <summary>
+    /// Delete the student timeline entry
     /// </summary>
     /// <param name="Request"></param>
     /// <returns></returns>
     public Task<TimelineStudent?> DeleteStudent(string StudentTimelineId);
 
     /// <summary>
-    ///
+    /// Update the student timeline entry
     /// </summary>
     /// <param name="Request"></param>
     /// <returns></returns>
@@ -90,7 +97,7 @@ namespace ProjectX.WebAPI.Services
       Cache = cache;
     }
 
-    public async Task<IReadOnlyList<TimelineStudent>> GetStudentTimeline()
+    public async Task<IReadOnlyList<TimelineStudent>> GetAllStudentTimelines()
     {
       return await this.Database.GetAllDocuments<TimelineStudent>("Timeline/Collections/Students")
                                   .ConfigureAwait(false);
@@ -117,10 +124,9 @@ namespace ProjectX.WebAPI.Services
                                                            .CreateDocumentAsync(NewStudent)
                                                            .ConfigureAwait(false);
 
-      this.Cache.Set($"TimelineStudent-{NewStudent.StudentId}", NewStudent, _timelinePersonCacheOptions);
+      this.Cache.Set($"TimelineStudent-{NewStudent.TimelineStudentId}", NewStudent, _timelinePersonCacheOptions);
 
       return NewStudent;
-
     }
 
     public async Task<TimelineStudent> UpdateStudent(UpdateTimelineStudentRequest Request)
@@ -171,45 +177,58 @@ namespace ProjectX.WebAPI.Services
       }
     }
 
-    public async Task<TimelineStudent?> GetStudent(FindTimelineStudentRequest Request)
+    public async Task<TimelineStudent> GetAStudentTimeline(string TimelineStudentId)
     {
-
-      if (Request.StudentId is not null)
+      if (this.Cache.TryGetValue($"TimelineStudent-{TimelineStudentId}", out TimelineStudent Student))
       {
-
-        if (this.Cache.TryGetValue($"TimelineStudent-{Request.StudentId}", out TimelineStudent Student))
+        if (Student.TimelineStudentId == TimelineStudentId)
           return Student;
-        else
-          return await this.Database.Collection("Timeline")
-                                    .Document("Collections")
-                                    .Collection("Students")
-                                    .Document(Request.StudentId)
-                                    .GetDocumentAsync<TimelineStudent>()
-                                    .ConfigureAwait(false);
       }
 
-      else if (Request.StudentName is not null)
-        return (await this.Database.Collection("Timeline")
-                                      .Document("Collections")
-                                      .Collection("Students")
-                                      .WhereEqual(nameof(TimelineStudent.FullName), Request.StudentName)
-                                      .GetAsync<TimelineStudent>()
-                                      .ConfigureAwait(false))
-                                      .FirstOrDefault();
-
-      throw new ArgumentException("GetStudentRequest must have one field filled out", nameof(Request));
-
+      return await this.Database.Collection("Timeline")
+                                        .Document("Collections")
+                                        .Collection("Students")
+                                        .Document(TimelineStudentId)
+                                        .GetDocumentAsync<TimelineStudent>()
+                                        .ConfigureAwait(false);
     }
 
-    public async Task<TimelineStudent?> DeleteStudent(string StudentId)
+    public async Task<IReadOnlyList<TimelineStudent>> GetStudentTimelines(FindTimelineStudentRequest Request)
+    {
+      if (Request.StudentId != null)
+      {
+        var students = await this.Database.Collection("Timeline")
+                                            .Document("Collections")
+                                            .Collection("Students")
+                                            .WhereEqual(nameof(TimelineStudent.StudentId), Request.StudentId)
+                                            .GetAsync<TimelineStudent>()
+                                            .ConfigureAwait(false);
+        return students;
+      }
+      // if (Request.StudentName != null)
+      // {
+      //   var students = await this.Database.Collection("Timeline")
+      //                                     .Document("Collections")
+      //                                     .Collection("Students")
+      //                                     .WhereEqual(nameof(TimelineStudent.FullName), Request.StudentName)
+      //                                     .GetAsync<TimelineStudent>()
+      //                                     .ConfigureAwait(false);
+      //   return students;
+      // }
+
+      throw new ArgumentException("GetStudentRequest must have StudentId filled out", nameof(Request));
+    }
+
+
+    public async Task<TimelineStudent?> DeleteStudent(string StudentTimelineId)
     {
 
-      this.Cache.Remove($"TimelineStudent-{StudentId}");
+      this.Cache.Remove($"TimelineStudent-{StudentTimelineId}");
 
       return await this.Database.Collection("Timeline")
                                 .Document("Collections")
                                 .Collection("Students")
-                                .Document(StudentId)
+                                .Document(StudentTimelineId)
                                 .DeleteDocumentAsync<TimelineStudent>();
 
     }
