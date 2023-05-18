@@ -77,7 +77,7 @@ namespace ProjectX.WebAPI.Controllers
         }
 
          /// <summary>
-        /// Retrieve a particular student time
+        /// Retrieve a particular student's timelines
         /// </summary>
         /// <returns></returns>
         [HttpGet("student/timeline/{StudentTimelineId}")]
