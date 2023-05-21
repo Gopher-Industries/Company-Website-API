@@ -22,7 +22,7 @@ namespace ProjectX.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Users can retrieve information about the complete student timeline from this endpoint
+        /// Retrieve all student timeline objects in the database
         /// </summary>
         /// <returns></returns>
         [HttpGet("student")]
@@ -34,7 +34,7 @@ namespace ProjectX.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Create a new student in the timeline
+        /// Create a new student timeline object
         /// </summary>
         /// <returns></returns>
         [Authorize]
@@ -94,7 +94,7 @@ namespace ProjectX.WebAPI.Controllers
 
         }
         /// <summary>
-        /// Delete a student from the timeline
+        /// Delete a student timeline object
         /// </summary>
         /// <param name="StudentId"></param>
         /// <returns></returns>
@@ -115,7 +115,7 @@ namespace ProjectX.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update the student in the timeline
+        /// Update a student timeline object
         /// </summary>
         /// <returns></returns>
         //[Authorize]
@@ -137,7 +137,7 @@ namespace ProjectX.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Users can retrieve information about the complete team timeline from this endpoint
+        /// Retrieve all team timeline objects in the database
         /// </summary>
         /// <returns></returns>
         [HttpGet("team")]
@@ -191,7 +191,7 @@ namespace ProjectX.WebAPI.Controllers
 
 
         /// <summary>
-        /// Add a team for the timeline
+        /// Create a new team timeline object
         /// </summary>
         /// <returns></returns>
         [Authorize]
@@ -211,18 +211,18 @@ namespace ProjectX.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Retrieve a team from the timeline by their team id
+        /// Delete a team timeline object
         /// </summary>
-        /// <param name="StudentId"></param>
+        /// <param name="TeamTimelineId"></param>
         /// <returns></returns>
         //[Authorize]
         [HttpDelete("team/{TeamId}")]
         [SwaggerResponse(StatusCodes.Status200OK, description: "Successfully deleted the team", typeof(TimelineTeam))]
         [SwaggerResponse(StatusCodes.Status404NotFound, description: "Team was not found")]
-        public async Task<ObjectResult> DeleteTeam([FromRoute] string TeamId)
+        public async Task<ObjectResult> DeleteTeam([FromRoute] string TeamTimelineId)
         {
 
-            var DeletedTeam = await TimelineService.DeleteTeam(TeamId).ConfigureAwait(false);
+            var DeletedTeam = await TimelineService.DeleteTeam(TeamTimelineId).ConfigureAwait(false);
 
             // Return Ok or 404 depending on whether the team exists
             return DeletedTeam is not null ?
@@ -231,8 +231,13 @@ namespace ProjectX.WebAPI.Controllers
 
         }
 
+        /// <summary>
+        /// Update a team timeline object
+        /// </summary>
+        /// <returns></returns>
+        //[Authorize]
         [HttpPut("team/update")]
-        [AllowAnonymous]
+        [Authorize]
         [SwaggerResponse(StatusCodes.Status200OK, description: "The team was updated successfully", typeof(TimelineTeam))]
         public async Task<ObjectResult> UpdateTeam([FromBody] UpdateTimelineTeamRequest Request)
         {
