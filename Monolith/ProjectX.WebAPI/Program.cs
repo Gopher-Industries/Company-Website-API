@@ -124,7 +124,7 @@ if (builder.Environment.IsDevelopment() is false)
         builder.WebHost.UseUrls($"http://0.0.0.0:{builder.Configuration["PORT"]}");
     else
         // Default port is 8000
-        builder.WebHost.UseUrls("http://0.0.0.0:8000");
+        builder.WebHost.UseUrls("http://0.0.0.0:8080");
 
 }
 
