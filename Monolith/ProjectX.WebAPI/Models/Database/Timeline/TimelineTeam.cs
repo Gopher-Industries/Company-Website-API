@@ -5,15 +5,9 @@ namespace ProjectX.WebAPI.Models.Database.Timeline
     [FirestoreData]
     public class TimelineTeam
     {
-        
+
         [FirestoreDocumentId]
         public string TimelineTeamId { get; init; }
-
-        /// <summary>
-        /// The ID of the team
-        /// </summary>
-        [FirestoreDocumentId]
-        public string TeamId { get; init; }
 
         /// <summary>
         /// The name of the team
@@ -44,14 +38,6 @@ namespace ProjectX.WebAPI.Models.Database.Timeline
         /// </summary>
         /// <example>T2 2022</example>
         [FirestoreProperty]
-        public string VideoLink { get; init; }
-
-        /// <summary>
-        /// A link to the project prototype
-        /// </summary>
-        /// <example>T2 2022</example>
-        [FirestoreProperty]
-        public string PrototypeLink { get; init; }
-
+        public string? VideoLink { get; init; }
     }
 }

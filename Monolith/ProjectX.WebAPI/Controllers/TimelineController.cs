@@ -75,7 +75,7 @@ namespace ProjectX.WebAPI.Controllers
         }
 
          /// <summary>
-        /// Retrieve a particular student's timelines
+        /// Retrieve a particular student timeline object
         /// </summary>
         /// <returns></returns>
         [HttpGet("student/timeline/{StudentTimelineId}")]
@@ -137,11 +137,52 @@ namespace ProjectX.WebAPI.Controllers
         }
 
         /// <summary>
+        /// Retrieve a particular team's timelines
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("team/{TeamName}")]
+        [AllowAnonymous]
+        [SwaggerResponse(StatusCodes.Status200OK, description: "Successfully found the team and their corresponding timelines", typeof(TimelineTeam))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, description: "Team was not found")]
+        public async Task<ObjectResult> GetTeams(string TeamName)
+        {
+
+            var Team = await TimelineService.GetTeamTimelines(new FindTimelineTeamRequest { TeamName = TeamName }).ConfigureAwait(false);
+
+            // Return Ok or 404 depending on whether the student exists
+            return Team is not null ?
+                Ok(value: Team) :
+                NotFound(value: $"Team with name '{TeamName}' was not found.");
+
+        }
+
+         /// <summary>
+        /// Retrieve a particular team timeline object
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("team/timeline/{TeamTimelineId}")]
+        [AllowAnonymous]
+        [SwaggerResponse(StatusCodes.Status200OK, description: "Successfully found the team timeline", typeof(TimelineTeam))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, description: "Team timeline was not found")]
+        public async Task<ObjectResult> GetATeamTimeline([FromRoute] string TeamTimelineId)
+        {
+
+            var TeamTimeline = await TimelineService.GetATeamTimeline(TeamTimelineId);
+
+            // Return Ok or 404 depending on whether the team timeline exists
+            return TeamTimeline is not null ?
+                Ok(value: TeamTimeline) :
+                NotFound(value: $"Timelinewith ID '{TeamTimelineId}' was not found.");
+
+        }
+
+
+        /// <summary>
         /// Add a team for the timeline
         /// </summary>
         /// <returns></returns>
         [Authorize]
-        [HttpPost("teams/create")]
+        [HttpPost("team/create")]
         [SwaggerResponse(StatusCodes.Status200OK, description: "The team was created successfully", typeof(TimelineTeam))]
         public async Task<ObjectResult> CreateTeam([FromBody] CreateTimelineTeamRequest Request)
         {
@@ -157,31 +198,12 @@ namespace ProjectX.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Retrieve a team from the timeline
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("teams/{TeamId}")]
-        [AllowAnonymous]
-        [SwaggerResponse(StatusCodes.Status200OK, description: "Successfully found the team", typeof(TimelineTeam))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, description: "Team was not found")]
-        public async Task<ObjectResult> GetTeam([FromRoute] string TeamId)
-        {
-            var Team = await TimelineService.GetTeam(new FindTimelineTeamRequest { TeamId = TeamId }).ConfigureAwait(false);
-
-            // Return Ok or 404 depending on whether the team exists
-            return Team is not null ?
-                Ok(value: Team) :
-                NotFound(value: $"Team with ID '{TeamId}' was not found.");
-
-        }
-
-        /// <summary>
         /// Retrieve a team from the timeline by their team id
         /// </summary>
         /// <param name="StudentId"></param>
         /// <returns></returns>
         //[Authorize]
-        [HttpDelete("teams/{TeamId}")]
+        [HttpDelete("team/{TeamId}")]
         [SwaggerResponse(StatusCodes.Status200OK, description: "Successfully deleted the team", typeof(TimelineTeam))]
         [SwaggerResponse(StatusCodes.Status404NotFound, description: "Team was not found")]
         public async Task<ObjectResult> DeleteTeam([FromRoute] string TeamId)
@@ -196,7 +218,7 @@ namespace ProjectX.WebAPI.Controllers
 
         }
 
-        [HttpPut("teams/update")]
+        [HttpPut("team/update")]
         [AllowAnonymous]
         [SwaggerResponse(StatusCodes.Status200OK, description: "The team was updated successfully", typeof(TimelineTeam))]
         public async Task<ObjectResult> UpdateTeam([FromBody] UpdateTimelineTeamRequest Request)

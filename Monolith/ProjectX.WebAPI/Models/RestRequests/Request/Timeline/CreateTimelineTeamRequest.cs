@@ -5,11 +5,6 @@ namespace ProjectX.WebAPI.Models.RestRequests.Request.Timeline
     public record CreateTimelineTeamRequest
     {
         /// <summary>
-        /// Required: The ID of the team
-        /// </summary>
-        public string TeamId { get; init; }
-
-        /// <summary>
         /// The name of the team
         /// </summary>
         public string TeamName { get; init; }
@@ -28,13 +23,6 @@ namespace ProjectX.WebAPI.Models.RestRequests.Request.Timeline
         /// The summary video for the team
         /// </summary>
         /// <example>https://www.youtube.com/yourteamsummaryvideo</example>
-        public string VideoLink { get; init; }
-
-        /// <summary>
-        /// A link to the project prototype
-        /// </summary>
-        /// <example>https://api.gopherindustries.net/swagger/index.html</example>
-        public string PrototypeLink { get; init; }
-
+        public string? VideoLink { get; init; }
     }
 }
