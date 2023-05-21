@@ -25,18 +25,19 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Configuration.AddEnvironmentVariables();
 builder.Configuration.AddJsonFile("appsettings.json", false);
 
-builder.Configuration.AddUserSecrets<Program>(true, true);
+// builder.Configuration.AddUserSecrets<Program>(true, true);
 
-if (builder.Configuration["ApplicationIdentity:AccessJWTSecret"] is null)
-{
-    if (Environment.GetEnvironmentVariable("ProjectXAPIConfiguration") is not null)
-        builder.Configuration.AddJsonStream(new MemoryStream(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("ProjectXAPIConfiguration"))));
-    else
-        throw new FileNotFoundException("No secrets configuration file found.");
-}
+// if (builder.Configuration["ApplicationIdentity:AccessJWTSecret"] is null)
+// {
+//    if (Environment.GetEnvironmentVariable("ProjectXAPIConfiguration") is not null)
+//        builder.Configuration.AddJsonStream(new MemoryStream(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("ProjectXAPIConfiguration"))));
+//    else
+//        throw new FileNotFoundException("No secrets configuration file found.");
+// }
 
 builder.Services.Configure<ApplicationHostSettings>(builder.Configuration.GetSection("ApplicationHosting"));
 builder.Services.Configure<ApplicationIdentitySettings>(builder.Configuration.GetSection("ApplicationIdentity"));
+builder.Services.Configure<ApplicationHashSettings>(builder.Configuration.GetSection("ApplicationHash"));
 builder.Services.AddSingleton<ITokenService, TokenService>();
 builder.Services.AddSingleton<IEmailService, SendGridService>();
 builder.Services.AddSingleton<IAuthenticationService, BCryptAuthenticationService>();
@@ -105,10 +106,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["ApplicationHosting:ExternalUrl"],
         ValidAudience = builder.Configuration["ApplicationHosting:ExternalUrl"],
-        //IssuerSigningKey = new RsaSecurityKey(new System.Security.Cryptography.RSAParameters
-        //{
-        //    s
-        //})
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(
                 builder.Configuration["ApplicationIdentity:AccessJWTSecret"]
@@ -126,8 +123,8 @@ if (builder.Environment.IsDevelopment() is false)
         // Use the port given from the environment variable
         builder.WebHost.UseUrls($"http://0.0.0.0:{builder.Configuration["PORT"]}");
     else
-        // Default port is 80
-        builder.WebHost.UseUrls("http://0.0.0.0:80");
+        // Default port is 8000
+        builder.WebHost.UseUrls("http://0.0.0.0:8000");
 
 }
 
@@ -137,7 +134,7 @@ var app = builder.Build();
 // Hotload api connections'
 var DatabaseInitialize = Task.Run(() => app.Services.GetRequiredService<IDatabaseService>().Initialize(app.Configuration));
 //app.Services.GetRequiredService<IDialogFlowService>();
-//app.Services.GetRequiredService<IDatabaseService>().Initialize(app.Configuration);
+app.Services.GetRequiredService<IDatabaseService>().Initialize(app.Configuration);
 
 app.MapSwagger();
 app.UseSwagger();
