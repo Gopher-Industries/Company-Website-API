@@ -30,11 +30,11 @@ RUN dotnet publish -c Release -o /app/publish -r alpine-x64 --self-contained tru
 # final stage/image. This base image is a linux machine with only dotnet runtime dependencies installed. Very small image size as a result.
 FROM mcr.microsoft.com/dotnet/runtime-deps:6.0-alpine
 WORKDIR /app
-EXPOSE 80
-EXPOSE 443
+EXPOSE 8080
 
 COPY --from=build /app/publish .
 
 # set entry point to the application
 #ENTRYPOINT ["./ProjectX.WebAPI", "ProjectX.WebAPI.dll"]
 #ENTRYPOINT ["./ProjectX.WebAPI"]
+ENTRYPOINT ["dotnet", "DotNet.Docker.dll"]
