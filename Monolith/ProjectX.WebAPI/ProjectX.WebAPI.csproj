@@ -16,6 +16,9 @@
     <EmbeddedResource Remove="Credentials\**" />
     <None Remove="Credentials\**" />
   </ItemGroup>
+  <ItemGroup>
+     <None Include="app.yaml" CopyToOutputDirectory="Always" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Remove="appsettings.Development.json" />
