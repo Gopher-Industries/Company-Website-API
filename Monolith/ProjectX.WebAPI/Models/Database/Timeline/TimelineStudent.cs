@@ -10,9 +10,15 @@ namespace ProjectX.WebAPI.Models.Database.Timeline
     [FirestoreData]
     public class TimelineStudent
     {
-
         [FirestoreDocumentId]
-        public string StudentId { get; init; }
+
+        public string TimelineStudentId { get; init; }
+
+        [FirestoreProperty]
+        /// <summary>
+        /// The ID of the student
+        /// </summary>
+        public string StudentId { get; set; }
 
         /// <summary>
         /// The full name of the student
@@ -21,42 +27,21 @@ namespace ProjectX.WebAPI.Models.Database.Timeline
         public string FullName { get; set; }
 
         /// <summary>
-        /// A link to the students linked in profile
+        /// Title of achievement
         /// </summary>
         [FirestoreProperty]
-        public string LinkedInProfile { get; set; }
+        public string Title { get; set; }
 
         /// <summary>
-        /// A link to the users profile picture
+        /// Description of achievement
         /// </summary>
         [FirestoreProperty]
-        public string ProfilePicture { get; set; }
+        public string Description { get; set; }
 
         /// <summary>
-        /// The role of the user
-        /// </summary>
-        /// <example>Scrum Master, Product Owner, or Developer</example>
-        [FirestoreProperty]
-        public string Role { get; set; }
-
-        /// <summary>
-        /// Area where the student specialized
-        /// </summary>
-        /// <example>Frontend Development, UI/UX Design, Artificial Intelligence, etc.</example>
-        [FirestoreProperty]
-        public string AreaOfSpecialization { get; set; }
-
-        /// <summary>
-        /// Any remarkable achievements of the student
+        /// Date at which the achievement of this student was added
         /// </summary>
         [FirestoreProperty]
-        public string RemarkableAchievements { get; set; }
-
-        /// <summary>
-        /// The id of the team that the student belongs to
-        /// </summary>
-        [FirestoreProperty]
-        public string[] Teams { get; set; }
-
+        public DateTime Date { get; set; }
     }
 }
