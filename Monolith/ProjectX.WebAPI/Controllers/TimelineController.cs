@@ -137,6 +137,19 @@ namespace ProjectX.WebAPI.Controllers
         }
 
         /// <summary>
+        /// Users can retrieve information about the complete team timeline from this endpoint
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("team")]
+        [AllowAnonymous]
+        [SwaggerResponse(StatusCodes.Status200OK, description: "Successfully retrieved the information for the team timeline", typeof(CompanyTeamRestModel))]
+        public async Task<ObjectResult> GetAllTeamTimelines()
+        {
+            return Ok(value: await TimelineService.GetAllTeamTimelines().ConfigureAwait(false));
+        }
+
+
+        /// <summary>
         /// Retrieve a particular team's timelines
         /// </summary>
         /// <returns></returns>

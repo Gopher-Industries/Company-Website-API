@@ -64,6 +64,9 @@ namespace ProjectX.WebAPI.Services
     /// <returns></returns>
     public Task<TimelineTeam?> UpdateTeam(UpdateTimelineTeamRequest Request);
 
+    public Task<IReadOnlyList<TimelineTeam>> GetAllTeamTimelines();
+
+
     /// <summary>
     ///
     /// </summary>
@@ -228,6 +231,13 @@ namespace ProjectX.WebAPI.Services
                                 .Collection("Students")
                                 .Document(StudentTimelineId)
                                 .DeleteDocumentAsync<TimelineStudent>();
+
+    }
+
+     public async Task<IReadOnlyList<TimelineTeam>> GetAllTeamTimelines()
+    {
+      return await this.Database.GetAllDocuments<TimelineTeam>("Timeline/Collections/Teams")
+                                  .ConfigureAwait(false);
 
     }
 
