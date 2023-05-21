@@ -2,7 +2,6 @@
 {
     public record GetTimelineRequest
     {
-
         /// <summary>
         /// Required: type of timeline, specify either Student or Company
         // <example>Student</example>
