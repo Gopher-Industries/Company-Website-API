@@ -6,59 +6,38 @@ namespace ProjectX.WebAPI.Models.Database.Timeline
     public class TimelineTeam
     {
 
-        /// <summary>
-        /// The unique Id of the team within the company
-        /// </summary>
         [FirestoreDocumentId]
-        public string TeamId { get; init; }
+        public string TimelineTeamId { get; init; }
 
         /// <summary>
         /// The name of the team
         /// </summary>
-        /// <example>Team Avengers</example>
         [FirestoreProperty]
-        public string TeamName { get; init; }
+        public string TeamName { get; set; }
+
+        /// <summary>
+        /// Title of achievement
+        /// </summary>
+        [FirestoreProperty]
+        public string Title { get; set; }
 
         /// <summary>
         /// The description of the team
         /// </summary>
-        /// <example>Team Avengers</example>
         [FirestoreProperty]
-        public string Description { get; init; }
+        public string Description { get; set; }
 
         /// <summary>
-        /// A link to the team's logo
+        /// Date at which the achievement of this team was added
         /// </summary>
         [FirestoreProperty]
-        public string Logo { get; init; }
-
-        /// <summary>
-        /// The trimester that the team work in
-        /// </summary>
-        /// <example>T2 2022</example>
-        [FirestoreProperty]
-        public string Trimester { get; init; }
+        public DateTime Date { get; set; }
 
         /// <summary>
         /// The summary video for the team
         /// </summary>
         /// <example>T2 2022</example>
         [FirestoreProperty]
-        public string VideoLink { get; init; }
-
-        /// <summary>
-        /// A link to the project prototype
-        /// </summary>
-        /// <example>T2 2022</example>
-        [FirestoreProperty]
-        public string PrototypeLink { get; init; }
-
-        /// <summary>
-        /// The trimester that the team work in
-        /// </summary>
-        /// <example>T2 2022</example>
-        [FirestoreProperty]
-        public string[] Mentors { get; init; }
-
+        public string? VideoLink { get; init; }
     }
 }

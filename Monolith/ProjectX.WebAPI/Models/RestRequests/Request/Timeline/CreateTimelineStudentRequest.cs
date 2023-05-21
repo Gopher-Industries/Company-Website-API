@@ -1,4 +1,4 @@
-﻿using Google.Cloud.Firestore;
+using Google.Cloud.Firestore;
 
 namespace ProjectX.WebAPI.Models.RestRequests.Request.Timeline
 {

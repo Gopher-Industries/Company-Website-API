@@ -1,23 +1,27 @@
-﻿using Google.Cloud.Firestore;
-
-namespace ProjectX.WebAPI.Models.RestRequests.Request.Timeline
+﻿namespace ProjectX.WebAPI.Models.RestRequests.Request.Timeline
 {
-    public record CreateTimelineTeamRequest
+    public record UpdateTimelineTeamRequest
     {
+
+        /// <summary>
+        /// Required: The ID of the team
+        /// </summary>
+        public string TeamTimelineId { get; init; }
+
         /// <summary>
         /// The name of the team
         /// </summary>
-        public string TeamName { get; init; }
+        public string? TeamName { get; init; }
 
         /// <summary>
         /// Required: Title of the team's achievement
         /// </summary>
-        public string Title { get; init; }
+        public string? Title { get; init; }
 
         /// <summary>
         /// Required: A short description (max 250 words) of the student's achievement
         /// </summary>
-        public string Description { get; init; }
+        public string? Description { get; init; }
 
         /// <summary>
         /// The summary video for the team

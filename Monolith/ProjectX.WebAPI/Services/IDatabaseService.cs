@@ -1,4 +1,4 @@
-﻿using Google.Api.Gax.Grpc;
+using Google.Api.Gax.Grpc;
 using Google.Api.Gax.Grpc.Gcp;
 using Google.Api.Gax.Grpc.Rest;
 using Google.Cloud.Firestore;

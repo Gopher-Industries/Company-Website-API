@@ -24,6 +24,7 @@ namespace ProjectX.WebAPI.Models.Database.Timeline
         /// The full name of the student
         /// </summary>
         [FirestoreProperty]
+
         public string FullName { get; set; }
 
         /// <summary>

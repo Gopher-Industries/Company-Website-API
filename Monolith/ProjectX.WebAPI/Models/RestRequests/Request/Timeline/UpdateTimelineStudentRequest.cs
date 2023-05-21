@@ -1,4 +1,4 @@
-﻿namespace ProjectX.WebAPI.Models.RestRequests.Request.Timeline
+namespace ProjectX.WebAPI.Models.RestRequests.Request.Timeline
 {
     public record UpdateTimelineStudentRequest
     {

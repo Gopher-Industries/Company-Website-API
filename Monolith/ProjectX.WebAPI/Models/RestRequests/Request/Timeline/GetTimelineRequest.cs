@@ -4,8 +4,7 @@
     {
         /// <summary>
         /// Required: type of timeline, specify either Student or Company
-        /// </summary>
-        /// <example>Student</example>
+        // <example>Student</example>
         public TimelineType timelineType { get; init; }
     }
 
