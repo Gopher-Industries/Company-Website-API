@@ -13,28 +13,21 @@
 #
 
 # https://hub.docker.com/_/microsoft-dotnet
-FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
-EXPOSE 443
 
 # copy csproj and restore as distinct layers
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+WORKDIR /src
 COPY ProjectX.WebAPI/*.csproj .
-
-# We're making sure the project is ready to be built for the alpine linux box
-RUN dotnet restore -r linux-x64
-
-# copy everything else and build app
+RUN dotnet restore
 COPY ProjectX.WebAPI/. .
-RUN dotnet publish -c Release -o /app/publish -r alpine-x64 --self-contained true /p:PublishTrimmed=true /p:PublishSingleFile=true
+RUN dotnet build "ProjectX.WebAPI.csproj" -c Release -o /app/build
 
-# final stage/image. This base image is a linux machine with only dotnet runtime dependencies installed. Very small image size as a result.
-FROM mcr.microsoft.com/dotnet/runtime-deps:6.0-alpine
+FROM build AS publish
+RUN dotnet publish "ProjectX.WebAPI.csproj" -c Release -o /app/publish
+
+FROM base AS final
 WORKDIR /app
-EXPOSE 80
-EXPOSE 443
-
-COPY --from=build /app/publish .
-
-# set entry point to the application
-#ENTRYPOINT ["./ProjectX.WebAPI", "ProjectX.WebAPI.dll"]
-#ENTRYPOINT ["./ProjectX.WebAPI"]
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "ProjectX.WebAPI.dll"]
