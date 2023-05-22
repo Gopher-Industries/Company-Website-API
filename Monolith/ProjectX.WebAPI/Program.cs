@@ -128,6 +128,13 @@ if (builder.Environment.IsDevelopment() is false)
 
 }
 
+
+// CoreyBock: Adding CORS arguments
+builder.Services.AddCors(p => p.AddPolicy("corsapp", builder =>
+{
+    builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
+}));
+
 var app = builder.Build();
 
 //
@@ -145,6 +152,7 @@ app.UseSwaggerUI();
 app.UseAuthentication();
 app.UseRouting();
 app.UseAuthorization();
+app.UseCors("corsapp");
 
 app.MapControllers();
 
