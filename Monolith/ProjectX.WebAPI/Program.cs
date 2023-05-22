@@ -132,7 +132,8 @@ if (builder.Environment.IsDevelopment() is false)
 // CoreyBock: Adding CORS arguments
 builder.Services.AddCors(p => p.AddPolicy("corsapp", builder =>
 {
-    builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
+    // Allowed domain set as exactly the appengine access link
+    builder.WithOrigins("https://sit-22t3-gopher-websit-a242043.ts.r.appspot.com/company-timeline");
 }));
 
 var app = builder.Build();
