@@ -1,3 +1,0 @@
-﻿service: projectx-api
-runtime: custom
-env: flex
